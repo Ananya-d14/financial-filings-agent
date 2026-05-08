@@ -1,0 +1,78 @@
+# --- Secrets ---
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+*.egg-info/
+dist/
+build/
+
+# --- uv ---
+# uv.lock IS committed; only ignore caches
+.uv-cache/
+
+# --- Node / Next.js / pnpm ---
+node_modules/
+.next/
+out/
+.pnpm-store/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- Filing ingestion artefacts (large, regenerable) ---
+data/raw/
+data/cache/
+data/embeddings/
+data/qdrant_snapshots/
+*.parquet
+
+# --- Model weights cache ---
+.cache/huggingface/
+models/
+
+# --- Docker volumes ---
+docker_volumes/
+postgres_data/
+qdrant_data/
+clickhouse_data/
+minio_data/
+
+# --- Logs ---
+logs/
+*.log
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Eval artefacts (regenerable) ---
+backend/eval/runs/
+backend/eval/*.csv
+
+# --- Notebooks ---
+notebooks/.ipynb_checkpoints/
+
+# --- Misc ---
+.claude/
+*.bak

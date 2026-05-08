@@ -1,0 +1,8 @@
+# Local-to-frontend additions; root .gitignore covers most patterns.
+.next/
+out/
+node_modules/
+.turbo/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts

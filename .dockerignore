@@ -1,0 +1,55 @@
+# Don't ship anything that bloats the image or leaks secrets
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+.venv/
+venv/
+
+# uv cache
+.uv-cache/
+
+# Dev artefacts
+.git/
+.github/
+.vscode/
+.idea/
+notebooks/
+
+# Frontend (separate deployment)
+frontend/
+
+# Tests, demos, docs (not needed in prod image)
+backend/tests/
+demo.py
+demo_live.py
+*.md
+!backend/db/schema.sql
+
+# Data + model weights (don't bake into image)
+data/
+models/
+docker_volumes/
+postgres_data/
+qdrant_data/
+clickhouse_data/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
