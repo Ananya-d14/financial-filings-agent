@@ -193,36 +193,57 @@ async def resolve_cited_text(
 
     Returns: (text, error_reason). If text is None, error_reason explains why.
     """
-    # Try the chunks table first, exact offset match.
-    row = (
-        await session.execute(
-            text(
-                """
-                SELECT text
-                FROM chunks
-                WHERE filing_id = :fid
-                  AND char_offset_start = :start
-                  AND char_offset_end = :end
-                LIMIT 1
-                """
-            ),
-            {
-                "fid": citation.filing_id,
-                "start": citation.char_offset_start,
-                "end": citation.char_offset_end,
-            },
-        )
-    ).fetchone()
-    if row is not None:
-        return row[0], None
+    # If filing_id isn't a valid UUID (e.g. LLM put accession_number there),
+    # try resolving by accession_number instead.
+    import uuid as _uuid
+    is_uuid = False
+    try:
+        _uuid.UUID(citation.filing_id)
+        is_uuid = True
+    except (ValueError, AttributeError):
+        pass
 
-    # No exact chunk, fall back to re-parsing the raw filing HTML.
-    filing_row = (
-        await session.execute(
-            text("SELECT raw_path FROM filings WHERE id = :id LIMIT 1"),
-            {"id": citation.filing_id},
-        )
-    ).fetchone()
+    if is_uuid:
+        # Try the chunks table first, exact offset match.
+        row = (
+            await session.execute(
+                text(
+                    """
+                    SELECT text
+                    FROM chunks
+                    WHERE filing_id = :fid::uuid
+                      AND char_offset_start = :start
+                      AND char_offset_end = :end
+                    LIMIT 1
+                    """
+                ),
+                {
+                    "fid": citation.filing_id,
+                    "start": citation.char_offset_start,
+                    "end": citation.char_offset_end,
+                },
+            )
+        ).fetchone()
+        if row is not None:
+            return row[0], None
+
+    # No exact chunk (or non-UUID filing_id), fall back to looking up by
+    # accession_number first, then by filing UUID.
+    if not is_uuid:
+        # Treat citation.filing_id as accession_number
+        filing_row = (
+            await session.execute(
+                text("SELECT raw_path FROM filings WHERE accession_number = :acc LIMIT 1"),
+                {"acc": citation.filing_id},
+            )
+        ).fetchone()
+    else:
+        filing_row = (
+            await session.execute(
+                text("SELECT raw_path FROM filings WHERE id = :id::uuid LIMIT 1"),
+                {"id": citation.filing_id},
+            )
+        ).fetchone()
     if filing_row is None or not filing_row[0]:
         return None, "filing_missing"
 
