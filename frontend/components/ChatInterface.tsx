@@ -94,7 +94,7 @@ export function ChatInterface() {
         {messages.length === 0 ? (
           <div style={{ paddingTop: "2rem" }}>
             {/* Hero text */}
-            <p style={{ color: "var(--muted)", fontSize: "0.82rem", marginBottom: "1.25rem", fontFamily: "var(--font-mono)" }}>
+            <p style={{ color: "var(--muted)", fontSize: "0.9rem", marginBottom: "1.25rem", fontFamily: "var(--font-mono)" }}>
               <span style={{ color: "var(--accent)" }}>&gt;</span> Query 400+ SEC filings. All answers grounded in XBRL data with verifiable citations.
             </p>
 
@@ -121,7 +121,7 @@ export function ChatInterface() {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.2rem" }}>
                     <span style={{ fontSize: "0.65rem", fontFamily: "var(--font-mono)", color, letterSpacing: "0.08em" }}>{tier}</span>
                   </div>
-                  <div style={{ fontSize: "0.82rem", color: "var(--fg)", lineHeight: 1.35 }}>{label}</div>
+                  <div style={{ fontSize: "0.9rem", color: "var(--fg)", lineHeight: 1.35 }}>{label}</div>
                 </button>
               ))}
             </div>
@@ -150,12 +150,12 @@ export function ChatInterface() {
                 background: msg.role === "user" ? "transparent" : "var(--surface)",
                 border: msg.role === "user" ? "1px solid var(--border)" : "1px solid var(--border)",
                 borderLeft: msg.role === "assistant" ? "3px solid var(--accent)" : undefined,
-                fontSize: "0.88rem",
+                fontSize: "1rem",
                 lineHeight: 1.6,
                 boxShadow: msg.role === "assistant" && !msg.isStreaming ? "0 0 20px rgba(0,212,170,0.04)" : undefined,
               }}>
                 {msg.error ? (
-                  <span style={{ color: "var(--red)", fontFamily: "var(--font-mono)", fontSize: "0.82rem" }}>
+                  <span style={{ color: "var(--red)", fontFamily: "var(--font-mono)", fontSize: "0.9rem" }}>
                     ✗ {msg.error}
                   </span>
                 ) : msg.answer && !msg.isStreaming ? (
@@ -193,7 +193,7 @@ export function ChatInterface() {
               padding: "0.6rem 5rem 0.6rem 0.75rem",
               color: "var(--fg)",
               fontFamily: "var(--font-sans)",
-              fontSize: "0.88rem",
+              fontSize: "1rem",
               lineHeight: 1.5,
               outline: "none",
               transition: "border-color 0.15s",

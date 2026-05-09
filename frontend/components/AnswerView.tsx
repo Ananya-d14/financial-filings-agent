@@ -29,7 +29,7 @@ export function AnswerView({ answer, trace }: Props) {
     <div>
       {/* Answer text */}
       <div
-        style={{ lineHeight: 1.7, fontSize: "0.88rem" }}
+        style={{ lineHeight: 1.7, fontSize: "1rem" }}
         dangerouslySetInnerHTML={{ __html: renderMarkdown(answer.markdown) }}
       />
 
