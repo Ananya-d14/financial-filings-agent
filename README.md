@@ -115,7 +115,7 @@ $0 in API spend over the entire build. Local GPU electricity not counted. Detail
 
 Backend: https://financial-filings-agent-production.up.railway.app/health
 
-Frontend: (Vercel, coming next)
+Frontend: https://financial-filings-agent-ofvp.vercel.app
 
 ## Deploying
 
