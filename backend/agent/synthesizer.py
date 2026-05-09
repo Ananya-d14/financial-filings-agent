@@ -112,11 +112,38 @@ async def synthesize(
     trace_id: str = "",
 ) -> Answer:
     """Generate the final Answer from plan + evidence."""
+    from pydantic import BaseModel as _BaseModel
+
+    # Lenient intermediate schema. The LLM only fills markdown + claims;
+    # required Answer fields (query, trace_id, etc.) are filled in below.
+    class _LLMCitation(_BaseModel):
+        filing_id: str | None = None
+        accession_number: str | None = None
+        ticker: str | None = None
+        form: str | None = None
+        fiscal_year: int | None = None
+        section: str | None = None
+        item_label: str | None = None
+        char_offset_start: int | None = None
+        char_offset_end: int | None = None
+        quoted_text: str | None = None
+
+    class _LLMClaim(_BaseModel):
+        text: str = ""
+        is_numeric: bool = False
+        numeric_value: float | None = None
+        numeric_unit: str | None = None
+        citations: list[_LLMCitation] = []
+
+    class _LLMAnswer(_BaseModel):
+        markdown: str = ""
+        claims: list[_LLMClaim] = []
+
     plan_summary = _render_plan_summary(plan)
     evidence_summary = _render_evidence_summary(sub_task_results)
 
     llm = get_llm()
-    answer, resp = await llm.chat_json(
+    raw, resp = await llm.chat_json(
         messages=[
             {"role": "system", "content": SYNTHESIZER_SYSTEM},
             {
@@ -128,19 +155,50 @@ async def synthesize(
                 ),
             },
         ],
-        schema=Answer,
+        schema=_LLMAnswer,
         model_role="primary",
         temperature=0.0,
         max_tokens=2048,
     )
 
-    # The model may not set trace_id / iteration / used_tools, fill them in.
-    answer = answer.model_copy(
-        update={
-            "trace_id": trace_id or answer.trace_id or "",
-            "iterations": answer.iterations or 1,
-            "used_tools": list({t.intended_tool for t in plan.sub_tasks}),
-        }
+    # Build proper Answer, filtering out citations with None required fields.
+    from backend.agent.schemas import Citation, Claim
+    clean_claims = []
+    for lc in raw.claims:
+        cits = []
+        for ci in lc.citations:
+            if all([ci.filing_id, ci.accession_number, ci.ticker,
+                    ci.form, ci.fiscal_year is not None,
+                    ci.section, ci.char_offset_start is not None,
+                    ci.char_offset_end is not None,
+                    ci.form in ("10-K", "10-Q", "8-K")]):
+                cits.append(Citation(
+                    filing_id=ci.filing_id,
+                    accession_number=ci.accession_number,
+                    ticker=ci.ticker,
+                    form=ci.form,
+                    fiscal_year=ci.fiscal_year,
+                    section=ci.section,
+                    item_label=ci.item_label,
+                    char_offset_start=ci.char_offset_start,
+                    char_offset_end=ci.char_offset_end,
+                    quoted_text=ci.quoted_text,
+                ))
+        clean_claims.append(Claim(
+            text=lc.text,
+            is_numeric=lc.is_numeric,
+            numeric_value=lc.numeric_value,
+            numeric_unit=lc.numeric_unit,
+            citations=cits,
+        ))
+
+    answer = Answer(
+        query=query,
+        markdown=raw.markdown,
+        claims=clean_claims,
+        trace_id=trace_id,
+        iterations=1,
+        used_tools=list({t.intended_tool for t in plan.sub_tasks}),
     )
 
     log.info(
