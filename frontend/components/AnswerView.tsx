@@ -177,7 +177,7 @@ function renderMarkdown(md: string): string {
       const code = m.slice(3, -3).replace(/^[a-z]+\n/, "");
       return `<pre style="background:var(--code-bg);padding:0.75rem;border-radius:4px;overflow-x:auto;border:1px solid var(--border)"><code style="font-family:var(--font-mono);font-size:0.82rem">${escHtml(code)}</code></pre>`;
     })
-    .replace(/(\|.+\|\n)+/g, renderTable)
+    .replace(/(\|.+\|[ \t]*\n?)+/g, renderTable)
     .replace(/\*\*(.+?)\*\*/g, "<strong style='color:var(--fg)'>$1</strong>")
     .replace(/`([^`]+)`/g, `<code style="background:var(--code-bg);padding:0.1em 0.3em;border-radius:3px;font-family:var(--font-mono);color:var(--accent);font-size:0.85em">$1</code>`)
     .replace(/^### (.+)$/gm, "<h3 style='font-size:0.9rem;margin:0.75rem 0 0.3rem;color:var(--fg);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.06em'>$1</h3>")
@@ -189,21 +189,34 @@ function renderMarkdown(md: string): string {
 }
 
 function renderTable(tableStr: string): string {
-  const rows = tableStr.trim().split("\n").filter((r) => !r.match(/^[\|:\-\s]+$/));
+  const allRows = tableStr.trim().split("\n");
+  // Filter out separator rows (--- lines) and empty lines
+  const rows = allRows.filter((r) => r.includes("|") && !r.match(/^[\|:\-\s]+$/));
   if (rows.length === 0) return tableStr;
+
+  // Count expected columns from first row
+  const colCount = rows[0].split("|").filter(Boolean).length;
+
   const [header, ...body] = rows;
-  const ths = header.split("|").filter(Boolean).map((h) =>
-    `<th>${escHtml(h.trim())}</th>`
-  ).join("");
+
+  const parseCells = (row: string): string[] => {
+    const cells = row.split("|").filter(Boolean).map((c) => c.trim());
+    // Pad or trim to expected column count
+    while (cells.length < colCount) cells.push("");
+    return cells.slice(0, colCount);
+  };
+
+  const ths = parseCells(header).map((h) => `<th>${escHtml(h)}</th>`).join("");
+
   const trs = body.map((row) => {
-    const tds = row.split("|").filter(Boolean).map((d) => {
-      const val = d.trim();
-      // Highlight numbers in green
-      const isNum = /^\$?[\d,\.]+[BMT%]?$/.test(val.replace(/\s/g, ""));
-      return `<td style="${isNum ? "color:var(--accent);font-family:var(--font-mono)" : ""}">${escHtml(val)}</td>`;
+    const tds = parseCells(row).map((val) => {
+      const isNum = /^\$?[\d,\.]+[BMT%]?$/.test(val.replace(/\s/g, "")) && val.length > 0;
+      const isEmpty = val === "" || val === "-" || val === "N/A";
+      return `<td style="${isNum ? "color:var(--accent);font-family:var(--font-mono);text-align:right" : ""}${isEmpty ? "color:var(--muted)" : ""}">${escHtml(val) || "—"}</td>`;
     }).join("");
     return `<tr>${tds}</tr>`;
   }).join("");
+
   return `<div style="overflow-x:auto;margin:0.75rem 0"><table><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>`;
 }
 
