@@ -1,21 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  asDoneData,
-  asPlanData,
-  asReflectionData,
-  asSynthesisData,
-  asToolCallData,
-  asToolResultData,
-  streamQuery,
-} from "../lib/api";
-import type {
-  ChatMessage,
-  MessageTrace,
-  StreamStatus,
-  ToolCallTrace,
-} from "../lib/types";
+import { batchQuery } from "../lib/api";
+import type { ChatMessage, MessageTrace, StreamStatus } from "../lib/types";
 import { AnswerView } from "./AnswerView";
 import { ThinkingIndicator } from "./ThinkingIndicator";
 
@@ -30,11 +17,8 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<StreamStatus>("idle");
-  const [currentTrace, setCurrentTrace] = useState<MessageTrace | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const abortRef = useRef<AbortController | null>(null);
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, status]);
@@ -42,11 +26,6 @@ export function ChatInterface() {
   const submit = useCallback(
     async (query: string) => {
       if (!query.trim() || status !== "idle") return;
-
-      // Abort any in-flight request
-      abortRef.current?.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
 
       const userMsg: ChatMessage = {
         id: crypto.randomUUID(),
@@ -65,99 +44,42 @@ export function ChatInterface() {
       setInput("");
       setStatus("planning");
 
-      const trace: MessageTrace = { tool_calls: [], reflections: [], iterations: 1 };
-      setCurrentTrace(trace);
-
       try {
-        for await (const event of streamQuery({ query }, controller.signal)) {
-          if (event.type === "plan") {
-            const planData = asPlanData(event);
-            setStatus("running_tools");
-            trace.plan = planData;
-            setCurrentTrace({ ...trace });
+        const answer = await batchQuery({ query });
 
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === assistantId
-                  ? { ...m, content: `Planning ${planData.sub_tasks.length} sub-task${planData.sub_tasks.length !== 1 ? "s" : ""}…` }
-                  : m
-              )
-            );
-          } else if (event.type === "tool_call") {
-            const d = asToolCallData(event);
-            setStatus("running_tools");
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === assistantId
-                  ? { ...m, content: `Running ${d.tool}: ${d.description}` }
-                  : m
-              )
-            );
-          } else if (event.type === "tool_result") {
-            const d = asToolResultData(event);
-            const tc: ToolCallTrace = {
-              tool: d.tool,
-              description: trace.tool_calls[d.index]?.description ?? d.tool,
-              latency_ms: d.latency_ms,
-              summary: d.summary,
-              error: d.error,
-              success: d.success,
-            };
-            trace.tool_calls[d.index] = tc;
-            setCurrentTrace({ ...trace });
-          } else if (event.type === "reflection") {
-            const d = asReflectionData(event);
-            setStatus("reflecting");
-            trace.reflections.push(d);
-            setCurrentTrace({ ...trace });
-          } else if (event.type === "synthesis") {
-            setStatus("synthesizing");
-            const d = asSynthesisData(event);
-            trace.iterations = d.iterations;
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === assistantId
-                  ? { ...m, content: "Synthesizing final answer…" }
-                  : m
-              )
-            );
-          } else if (event.type === "done") {
-            const d = asDoneData(event);
-            setStatus("done");
-            trace.iterations = d.iterations;
-            setMessages((prev) =>
-              prev.map((m) =>
-                m.id === assistantId
-                  ? {
-                      ...m,
-                      role: "assistant",
-                      content: d.answer.markdown,
-                      answer: d.answer,
-                      trace: { ...trace },
-                      isStreaming: false,
-                    }
-                  : m
-              )
-            );
-            break;
-          } else if (event.type === "error") {
-            throw new Error(String(event.data.error ?? "Unknown error"));
-          }
-        }
-      } catch (err) {
-        if ((err as Error).name !== "AbortError") {
-          const msg = err instanceof Error ? err.message : String(err);
+        if (answer) {
           setMessages((prev) =>
             prev.map((m) =>
               m.id === assistantId
-                ? { ...m, isStreaming: false, error: msg }
+                ? {
+                    ...m,
+                    content: answer.markdown,
+                    answer,
+                    isStreaming: false,
+                  }
+                : m
+            )
+          );
+        } else {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId
+                ? { ...m, isStreaming: false, error: "No answer returned." }
                 : m
             )
           );
         }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantId
+              ? { ...m, isStreaming: false, error: msg }
+              : m
+          )
+        );
       } finally {
         setStatus("idle");
-        setCurrentTrace(null);
       }
     },
     [status]
@@ -172,7 +94,6 @@ export function ChatInterface() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* Message list */}
       <div style={{ flex: 1, overflowY: "auto", padding: "1rem 0" }}>
         {messages.length === 0 ? (
           <div style={{ textAlign: "center", paddingTop: "3rem" }}>
@@ -230,7 +151,6 @@ export function ChatInterface() {
               >
                 {msg.role === "user" ? "U" : "A"}
               </div>
-
               <div
                 style={{
                   maxWidth: "85%",
@@ -246,26 +166,18 @@ export function ChatInterface() {
                   <span style={{ color: "#ff6b6b" }}>Error: {msg.error}</span>
                 ) : msg.answer && !msg.isStreaming ? (
                   <AnswerView answer={msg.answer} trace={msg.trace} />
+                ) : msg.isStreaming ? (
+                  <ThinkingIndicator status={status} />
                 ) : (
-                  <span style={{ color: msg.isStreaming ? "var(--muted)" : "var(--fg)" }}>
-                    {msg.content}
-                  </span>
+                  <span style={{ color: "var(--fg)" }}>{msg.content}</span>
                 )}
               </div>
             </div>
           ))
         )}
-
-        {/* Live thinking indicator (appears below last message) */}
-        {status !== "idle" && status !== "done" && (
-          <div style={{ paddingLeft: "2.75rem" }}>
-            <ThinkingIndicator status={status} />
-          </div>
-        )}
         <div ref={bottomRef} />
       </div>
 
-      {/* Input area */}
       <div
         style={{
           borderTop: "1px solid var(--border)",
@@ -313,7 +225,7 @@ export function ChatInterface() {
             whiteSpace: "nowrap",
           }}
         >
-          Send →
+          {status !== "idle" ? "Thinking…" : "Send →"}
         </button>
       </div>
     </div>
