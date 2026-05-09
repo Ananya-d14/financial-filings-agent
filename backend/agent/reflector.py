@@ -144,14 +144,30 @@ async def reflect(
         session:           Async DB session for citation verification.
     """
     failures: list[str] = []
+    soft_failures: list[str] = []  # logged but don't trigger refinement
 
     # Plan completeness, runs before synthesis.
     failures.extend(check_plan_completeness(plan, sub_task_results))
 
-    # Answer-level checks, only if synthesis already produced an answer.
+    # Answer-level checks. Citation verification is a soft signal because
+    # the LLM doesn't have access to real filing_ids and char offsets, so
+    # citations often fail to verify even when the underlying claim is correct.
+    # Logged for observability but doesn't trigger another expensive iteration.
     if answer is not None:
         failures.extend(check_numeric_claims_have_citations(answer))
-        failures.extend(await check_citations_verify(answer, session))
+        try:
+            verify_failures = await check_citations_verify(answer, session)
+            soft_failures.extend(verify_failures)
+        except Exception as exc:
+            log.warning("reflector.verify_skipped", error=str(exc))
+
+    if soft_failures:
+        log.info(
+            "reflector.soft_failures",
+            iteration=iteration,
+            count=len(soft_failures),
+            sample=soft_failures[:2],
+        )
 
     if not failures:
         log.info("reflector.passed", iteration=iteration)

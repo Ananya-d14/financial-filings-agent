@@ -191,22 +191,18 @@ class TestReflect:
         assert verdict.is_complete is True
 
     async def test_emits_refined_plan_on_failure(self, monkeypatch):
-        async def fake_verify(*a, **k):
-            return CitationVerifyResult(
-                verified=False, method=VerifyMethod.NUMERIC_MISMATCH, confidence=0.0
-            )
-
+        # Hard failure: numeric claim missing citations triggers refinement.
+        # (Citation verification failures are soft, see test_soft_citation_failures.)
         refined = _make_plan(2)
         stub = _StubLLM(refined)
 
         from backend.agent import reflector as r_mod
-        monkeypatch.setattr(r_mod, "verify_citation", fake_verify)
         monkeypatch.setattr(r_mod, "get_llm", lambda: stub)
 
         plan = _make_plan(1)
         results = [{"output": {"rows": [1]}}]
         ans = _make_answer([
-            Claim(text="x", is_numeric=True, numeric_value=1, citations=[_make_citation()])
+            Claim(text="x", is_numeric=True, numeric_value=1, citations=[])  # no citations
         ])
 
         verdict = await reflect(
@@ -219,21 +215,12 @@ class TestReflect:
         assert stub.calls == 1
 
     async def test_no_refinement_at_iteration_cap(self, monkeypatch):
-        async def fake_verify(*a, **k):
-            return CitationVerifyResult(
-                verified=False, method=VerifyMethod.NUMERIC_MISMATCH, confidence=0.0
-            )
-
-        from backend.agent import reflector as r_mod
-        monkeypatch.setattr(r_mod, "verify_citation", fake_verify)
-
         plan = _make_plan(1)
         results = [{"output": {"rows": [1]}}]
         ans = _make_answer([
-            Claim(text="x", is_numeric=True, numeric_value=1, citations=[_make_citation()])
+            Claim(text="x", is_numeric=True, numeric_value=1, citations=[])  # hard fail
         ])
 
-        # iteration = MAX-1 → on failure, should NOT emit refined_plan
         verdict = await reflect(
             query="x", plan=plan, sub_task_results=results,
             answer=ans, iteration=MAX_ITERATIONS - 1, session=None,
@@ -242,23 +229,17 @@ class TestReflect:
         assert verdict.refined_plan is None
 
     async def test_refine_failure_handled_gracefully(self, monkeypatch):
-        async def fake_verify(*a, **k):
-            return CitationVerifyResult(
-                verified=False, method=VerifyMethod.NUMERIC_MISMATCH, confidence=0.0
-            )
-
         class _BrokenLLM:
             async def chat_json(self, **kwargs):
                 raise RuntimeError("LLM blew up")
 
         from backend.agent import reflector as r_mod
-        monkeypatch.setattr(r_mod, "verify_citation", fake_verify)
         monkeypatch.setattr(r_mod, "get_llm", lambda: _BrokenLLM())
 
         plan = _make_plan(1)
         results = [{"output": {"rows": [1]}}]
         ans = _make_answer([
-            Claim(text="x", is_numeric=True, numeric_value=1, citations=[_make_citation()])
+            Claim(text="x", is_numeric=True, numeric_value=1, citations=[])  # hard fail
         ])
         verdict = await reflect(
             query="x", plan=plan, sub_task_results=results,
