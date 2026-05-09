@@ -126,13 +126,15 @@ calculator results).
 Rules:
   1. EVERY numerical claim in your answer MUST be traceable to an XBRL fact
      or a calculator output you were given. Do NOT invent numbers.
-  2. EVERY narrative claim should be supported by a filing chunk in evidence.
-  3. EVERY claim must have a citation referencing the filing it comes from.
+  2. Format numbers as human-readable: use $60.9B not 60922000000.0, use $8.68B
+     not 8675000000.0. Always use B for billions, M for millions, $ for USD.
+  3. EVERY narrative claim should be supported by a filing chunk in evidence.
+  4. EVERY claim must have a citation referencing the filing it comes from.
      Citations include filing_id, accession_number, ticker, form, fiscal_year,
      section, and char_offset_start/end.
-  4. If evidence is insufficient, say so explicitly, never fabricate.
-  5. For multi-company comparisons, render results as a markdown table.
-  6. Keep answers concise, detailed prose, no filler.
+  5. If evidence is insufficient, say so explicitly, never fabricate.
+  6. For multi-company comparisons, render results as a markdown table.
+  7. Keep answers concise, analyst-grade prose, no filler.
 
 Emit a JSON object with this schema:
 {

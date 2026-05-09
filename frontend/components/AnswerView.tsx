@@ -90,16 +90,30 @@ export function AnswerView({ answer, trace }: Props) {
 // Helpers
 // ---------------------------------------------------------------------------
 
+function formatNumbers(text: string): string {
+  // Convert raw numbers like 365817000000.0 USD → $365.8B
+  return text.replace(/(\d{10,}(?:\.\d+)?)\s*(USD)?/g, (_match, num, unit) => {
+    const n = parseFloat(num);
+    if (n >= 1e12) return `$${(n / 1e12).toFixed(2)}T`;
+    if (n >= 1e9) return `$${(n / 1e9).toFixed(2)}B`;
+    if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
+    return unit ? `$${n.toLocaleString()}` : num;
+  });
+}
+
 function renderMarkdown(md: string): string {
-  // Minimal markdown → HTML: bold, inline code, headers, tables, newlines.
-  // A full react-markdown integration is phase 7; this handles the common cases.
+  // Normalize escaped newlines that LLMs sometimes output in JSON strings
+  md = md.replace(/\\n/g, "\n");
+  // Format large numbers to human-readable (e.g. 60922000000.0 USD → $60.92B)
+  md = formatNumbers(md);
+
   return md
     // code blocks
     .replace(/```[\s\S]*?```/g, (m) => {
       const code = m.slice(3, -3).replace(/^[a-z]+\n/, "");
       return `<pre style="background:var(--code-bg);padding:0.75rem;border-radius:6px;overflow-x:auto;font-size:0.85rem"><code>${escHtml(code)}</code></pre>`;
     })
-    // markdown tables — minimal rendering
+    // markdown tables
     .replace(/(\|.+\|\n)+/g, renderTable)
     // bold
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
