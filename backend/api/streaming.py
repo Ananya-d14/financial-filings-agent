@@ -88,10 +88,9 @@ async def stream_graph_loop(
 
     On unhandled exception: yields an `error` event and stops.
     """
-    from backend.agent.graph import _run_tool, planner_node, synthesizer_node
+    from backend.agent.graph import _run_tool
     from backend.agent.planner import plan_query
     from backend.agent.reflector import MAX_ITERATIONS, reflect
-    from backend.agent.schemas import AgentState  # type: ignore[attr-defined]
     from backend.agent.synthesizer import synthesize
     from backend.db.session import get_session
 
