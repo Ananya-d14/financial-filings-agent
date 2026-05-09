@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function HomePage() {
   return (
-    <main style={{ maxWidth: "900px", margin: "0 auto", padding: "1.5rem 1.5rem 0", height: "100dvh", display: "flex", flexDirection: "column" }}>
+    <main style={{ maxWidth: "900px", margin: "0 auto", padding: "1.5rem 1.5rem 1.5rem", height: "100dvh", display: "flex", flexDirection: "column" }}>
       {/* Header */}
       <header style={{ paddingBottom: "0.75rem", borderBottom: "1px solid var(--border)", marginBottom: "0.75rem", flexShrink: 0 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
