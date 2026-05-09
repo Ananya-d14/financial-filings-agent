@@ -19,17 +19,72 @@
   --font-sans: ui-sans-serif, "Inter", system-ui, -apple-system, sans-serif;
 }
 
+/* ── Animations ────────────────────────────────────────── */
+
+/* A: Dot grid breathe */
+@keyframes grid-breathe {
+  0%   { opacity: 0.30; }
+  50%  { opacity: 0.55; }
+  100% { opacity: 0.30; }
+}
+
+/* C: Slow background gradient pulse */
+@keyframes bg-pulse {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 * { box-sizing: border-box; }
 
-html, body {
+html {
+  /* C: Animated gradient — stays within the same dark family, barely perceptible */
+  background: linear-gradient(
+    145deg,
+    #080b0f 0%,
+    #090e14 25%,
+    #07100f 50%,
+    #090b10 75%,
+    #080b0f 100%
+  );
+  background-size: 400% 400%;
+  animation: bg-pulse 20s ease infinite;
+  min-height: 100%;
+}
+
+body {
   margin: 0;
   padding: 0;
-  background: var(--bg);
+  background: transparent;
   color: var(--fg);
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* A: Dot grid overlay — fixed, sits behind all content */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(
+    circle,
+    rgba(0, 212, 170, 0.18) 1px,
+    transparent 1px
+  );
+  background-size: 28px 28px;
+  animation: grid-breathe 8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* All direct content sits above the dot grid */
+body > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* Scrollbar */
