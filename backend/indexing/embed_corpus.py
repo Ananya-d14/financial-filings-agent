@@ -191,7 +191,7 @@ async def embed_pending_chunks(
 
         for row, vector in zip(rows, vectors):
             (
-                chunk_id, text, section, item_label, offset_start, offset_end,
+                chunk_id, chunk_text, section, item_label, offset_start, offset_end,
                 filing_id, ticker, fiscal_year, form,
             ) = row
             point_id = str(uuid.uuid4())
@@ -211,7 +211,7 @@ async def embed_pending_chunks(
                         "char_offset_end": offset_end,
                         # Preview text (first 200 chars) stored in Qdrant payload
                         # for UI display without hitting Postgres.
-                        "text_preview": text[:200],
+                        "text_preview": chunk_text[:200],
                     },
                 }
             )

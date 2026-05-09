@@ -111,6 +111,12 @@ For a quick sanity check that doesn't need Docker, run `python demo.py` — it s
 
 $0 in API spend over the entire build. Local GPU electricity not counted. Details in `COSTS.md`.
 
+## Live demo
+
+Backend: https://financial-filings-agent-production.up.railway.app/health
+
+Frontend: (Vercel, coming next)
+
 ## Deploying
 
 `DEPLOY.md` walks through the production setup: Supabase Postgres, Qdrant Cloud, Railway for the backend, Vercel for the frontend. All on free tiers.
