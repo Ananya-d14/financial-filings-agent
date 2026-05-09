@@ -83,8 +83,16 @@ async def query(req: QueryRequest) -> QueryResponse:
     try:
         result = await run_graph_loop(query=req.query, trace_id=trace_id)
     except Exception as exc:
-        log.error("api.query.error", error=str(exc), trace_id=trace_id)
-        return QueryResponse(answer=None, error=str(exc))
+        err_str = str(exc)
+        log.error("api.query.error", error=err_str, trace_id=trace_id)
+        # Give user-friendly messages for common failure modes
+        if "rate" in err_str.lower() or "429" in err_str or "quota" in err_str.lower():
+            friendly = "Groq free-tier rate limit hit. Wait 30 seconds and try again."
+        elif "fallback provider is disabled" in err_str or "ollama" in err_str.lower():
+            friendly = "LLM temporarily unavailable (rate limited). Wait 30 seconds and try again."
+        else:
+            friendly = f"Query failed: {err_str[:200]}"
+        return QueryResponse(answer=None, error=friendly)
 
     log.info(
         "api.query.done",

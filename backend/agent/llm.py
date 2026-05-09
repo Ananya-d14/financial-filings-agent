@@ -255,7 +255,10 @@ class LLM:
         except (LLMRateLimited, LLMError) as exc:
             log.warning("llm.groq_failed_falling_back", error=str(exc))
 
-        # --- Fallback: Ollama ---
+        # --- Fallback: Ollama (only if configured) ---
+        if self.settings.llm_fallback_provider.lower() == "none":
+            raise LLMError("Groq failed and fallback provider is disabled (LLM_FALLBACK_PROVIDER=none)")
+
         try:
             text, meta = await self._get_ollama().chat(
                 model=self._model_for_role(model_role, "ollama"),
