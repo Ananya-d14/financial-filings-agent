@@ -221,7 +221,7 @@ class LLM:
         json_mode: bool = False,
         temperature: float = 0.0,
         max_tokens: int = 2048,
-        max_retries: int = 2,
+        max_retries: int = 3,
     ) -> LLMResponse:
         """Send a chat request, returning the first successful response.
 
@@ -293,7 +293,8 @@ class LLM:
         client = self._get_groq() if provider == "groq" else self._get_ollama()
         model = self._model_for_role(role, provider)
 
-        backoff = 1.0
+        # Longer backoffs for rate limits: 5s, 15s, 30s
+        backoffs = [5.0, 15.0, 30.0]
         last_exc: Exception | None = None
         for attempt in range(max_retries + 1):
             try:
@@ -308,9 +309,9 @@ class LLM:
                 last_exc = exc
                 if attempt >= max_retries:
                     break
+                backoff = backoffs[min(attempt, len(backoffs) - 1)]
                 log.info("llm.rate_limited_retry", attempt=attempt + 1, backoff=backoff)
                 await asyncio.sleep(backoff)
-                backoff *= 2
         raise (last_exc or LLMError("retries exhausted"))
 
     async def chat_json(
