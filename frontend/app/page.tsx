@@ -36,6 +36,28 @@ export default function HomePage() {
             <span className="tag tag-green">LIVE</span>
             <span className="tag">20 TICKERS</span>
             <span className="tag">5 YRS</span>
+            <a
+              href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&type=10-K&dateb=&owner=include&count=40&search_text="
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.25rem",
+                padding: "0.15rem 0.55rem",
+                border: "1px solid var(--accent)",
+                borderRadius: "3px",
+                color: "var(--accent)",
+                background: "var(--accent-glow)",
+                fontSize: "0.7rem",
+                fontFamily: "var(--font-mono)",
+                fontWeight: 600,
+                textDecoration: "none",
+                letterSpacing: "0.03em",
+              }}
+            >
+              SEC EDGAR ↗
+            </a>
           </div>
         </div>
 

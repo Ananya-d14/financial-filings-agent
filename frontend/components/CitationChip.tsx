@@ -112,6 +112,34 @@ export function CitationChip({ citation, index }: Props) {
               chars {citation.char_offset_start}–{citation.char_offset_end}
             </span>
           </div>
+
+          {/* View on SEC button */}
+          <a
+            href={`https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${citation.ticker}&type=${citation.form}&dateb=&owner=include&count=10&search_text=`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.3rem",
+              marginTop: "0.5rem",
+              padding: "0.25rem 0.6rem",
+              background: color + "18",
+              border: `1px solid ${color}44`,
+              borderRadius: "3px",
+              color,
+              fontSize: "0.7rem",
+              fontFamily: "var(--font-mono)",
+              fontWeight: 600,
+              textDecoration: "none",
+              cursor: "pointer",
+              letterSpacing: "0.03em",
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = color + "30"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = color + "18"; }}
+          >
+            View on SEC.gov ↗
+          </a>
         </span>
       )}
     </span>
