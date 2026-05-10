@@ -2,19 +2,16 @@
 
 import { useEffect, useRef } from "react";
 
-interface Shape {
+interface Particle {
   x: number;
   y: number;
   vx: number;
   vy: number;
-  size: number;
-  sides: number; // 3=triangle, 4=square, 6=hexagon, 0=circle
-  rotation: number;
-  rotSpeed: number;
-  opacity: number;
-  lineWidth: number;
-  dashed: boolean;
 }
+
+const CONNECTION_DISTANCE = 140;
+const PARTICLE_COUNT = 70;
+const LINE_COLOR = "0, 212, 170"; // --accent teal
 
 export function BackgroundCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -26,7 +23,7 @@ export function BackgroundCanvas() {
     if (!ctx) return;
 
     let raf: number;
-    let shapes: Shape[] = [];
+    let particles: Particle[] = [];
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -35,83 +32,59 @@ export function BackgroundCanvas() {
     resize();
     window.addEventListener("resize", resize);
 
-    // Spawn shapes across the canvas
-    const TYPES = [3, 4, 6, 0]; // triangle, square, hex, circle
-    const COUNT = 28;
-
-    for (let i = 0; i < COUNT; i++) {
-      const size = 18 + Math.random() * 60;
-      shapes.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        size,
-        sides: TYPES[Math.floor(Math.random() * TYPES.length)],
-        rotation: Math.random() * Math.PI * 2,
-        rotSpeed: (Math.random() - 0.5) * 0.012,
-        opacity: 0.07 + Math.random() * 0.13,
-        lineWidth: Math.random() > 0.5 ? 1 : 0.5,
-        dashed: Math.random() > 0.65,
+    // Spawn particles
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
       });
     }
 
-    function polygon(n: number, r: number) {
-      ctx!.beginPath();
-      for (let i = 0; i < n; i++) {
-        const a = (i / n) * Math.PI * 2 - Math.PI / 2;
-        if (i === 0) ctx!.moveTo(Math.cos(a) * r, Math.sin(a) * r);
-        else ctx!.lineTo(Math.cos(a) * r, Math.sin(a) * r);
-      }
-      ctx!.closePath();
-    }
-
     function draw() {
-      ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+      const W = canvas!.width;
+      const H = canvas!.height;
+      ctx!.clearRect(0, 0, W, H);
 
-      for (const s of shapes) {
-        // Drift
-        s.x += s.vx;
-        s.y += s.vy;
-        s.rotation += s.rotSpeed;
-
-        // Wrap around edges
-        const pad = s.size + 20;
-        if (s.x < -pad) s.x = canvas!.width + pad;
-        else if (s.x > canvas!.width + pad) s.x = -pad;
-        if (s.y < -pad) s.y = canvas!.height + pad;
-        else if (s.y > canvas!.height + pad) s.y = -pad;
-
-        ctx!.save();
-        ctx!.translate(s.x, s.y);
-        ctx!.rotate(s.rotation);
-        ctx!.strokeStyle = `rgba(0, 212, 170, ${s.opacity})`;
-        ctx!.lineWidth = s.lineWidth;
-        if (s.dashed) ctx!.setLineDash([4, 6]);
-        else ctx!.setLineDash([]);
-
-        if (s.sides === 0) {
-          // Circle
-          ctx!.beginPath();
-          ctx!.arc(0, 0, s.size / 2, 0, Math.PI * 2);
-          ctx!.stroke();
-        } else {
-          polygon(s.sides, s.size / 2);
-          ctx!.stroke();
-        }
-
-        // Some large shapes get a second inner ring for depth
-        if (s.size > 50 && s.sides !== 0) {
-          ctx!.setLineDash([2, 8]);
-          ctx!.globalAlpha = 0.4;
-          polygon(s.sides, s.size / 3.5);
-          ctx!.stroke();
-          ctx!.globalAlpha = 1;
-        }
-
-        ctx!.restore();
+      // Move particles
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = W;
+        else if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H;
+        else if (p.y > H) p.y = 0;
       }
 
+      // Draw connecting lines
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < CONNECTION_DISTANCE) {
+            const alpha = (1 - dist / CONNECTION_DISTANCE) * 0.25;
+            ctx!.beginPath();
+            ctx!.strokeStyle = `rgba(${LINE_COLOR}, ${alpha})`;
+            ctx!.lineWidth = 0.8;
+            ctx!.moveTo(particles[i].x, particles[i].y);
+            ctx!.lineTo(particles[j].x, particles[j].y);
+            ctx!.stroke();
+          }
+        }
+      }
+
+      // Draw particle dots
+      for (const p of particles) {
+        ctx!.beginPath();
+        ctx!.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
+        ctx!.fillStyle = `rgba(${LINE_COLOR}, 0.35)`;
+        ctx!.fill();
+      }
+
+      // Draw geometric shapes as additional moving elements
       raf = requestAnimationFrame(draw);
     }
 
