@@ -1,8 +1,9 @@
 """LLM-as-judge for qualitative answer evaluation.
 
-Uses Groq Llama 3.3 70B as the judge with an explicit 4-point rubric.
+Uses Groq Llama 3.1 8B-instant as the judge with an explicit 4-point rubric.
 Calibrated against human ratings to detect and correct for self-preference
-bias (same model family generates and judges the answers).
+bias (same model generates and judges the answers, which is suboptimal but
+the only free option here).
 
 Rubric (0-3)
 -----------
@@ -22,10 +23,9 @@ Calibration computes Cohen's κ between the LLM judge and human ratings on a
 (fair agreement), the judge scores are not published until the judge is
 improved or the rubric is revised.
 
-Self-preference bias: since the generator (Llama 3.3 70B) and judge are the
-same model family, the calibration step is especially important. The bias
-is expected to manifest as the judge being lenient on Llama-generated answers;
-the calibration κ catches this systematically.
+Self-preference bias: since the generator and judge are the same model,
+the calibration step matters a lot. The bias is expected to show up as
+the judge being lenient on its own outputs; calibration κ is what flags it.
 """
 
 from __future__ import annotations
@@ -166,7 +166,7 @@ def cohens_kappa(
           < 0.0 . less than chance
           0.0-0.2. slight
           0.2-0.4. fair
-          0.4-0.6. moderate  ← minimum acceptable for publication
+          0.4-0.6. moderate  <- minimum acceptable for publication
           0.6-0.8. substantial
           0.8-1.0. almost perfect
     """
@@ -219,7 +219,7 @@ class CalibrationReport:
             lines.append(f"| {s} | {hc} | {jc} |")
         if not self.passes_threshold():
             lines.append(
-                "\n⚠️ κ below 0.4 (fair agreement). judge scores not published "
+                "\n κ below 0.4 (fair agreement). judge scores not published "
                 "until rubric is revised or a different judge model is selected."
             )
         return "\n".join(lines)

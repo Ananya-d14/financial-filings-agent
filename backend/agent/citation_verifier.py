@@ -3,8 +3,8 @@
 Given a Claim and a Citation, confirm:
   1. The citation's offsets resolve to actual text in the filing.
   2. The text supports the claim:
-     - Numeric claims     → exact / tolerance match against numbers in cited text
-     - Narrative claims   → cosine similarity ≥ threshold via BGE embeddings
+     - Numeric claims     -> exact / tolerance match against numbers in cited text
+     - Narrative claims   -> cosine similarity ≥ threshold via BGE embeddings
 
 This is the FINAL verification step before any answer reaches the user. Any
 hallucinated citation, fabricated quote, or off-by-one offset must be caught
@@ -75,12 +75,12 @@ class CitationVerifyResult(BaseModel):
 
 
 # Captures numbers like:
-#   1234           →  1234
-#   1,234,567      →  1234567
-#   1,234.56       →  1234.56
-#   12.5           →  12.5
-#   .25            →  0.25
-#   $(96.9) million →  -96,900,000   (parens = negative; suffix can come AFTER close-paren)
+#   1234           ->  1234
+#   1,234,567      ->  1234567
+#   1,234.56       ->  1234.56
+#   12.5           ->  12.5
+#   .25            ->  0.25
+#   $(96.9) million ->  -96,900,000   (parens = negative; suffix can come AFTER close-paren)
 #
 # Strategy: capture the digits + optional inline close-paren + optional suffix.
 # Detect accounting-negative by checking surrounding chars for an opening paren
@@ -291,7 +291,7 @@ def semantic_similarity(
         normalize_embeddings=True,
         show_progress_bar=False,
     )
-    # Normalised vectors → cosine = dot product
+    # Normalised vectors -> cosine = dot product
     return float(_dot(vectors[0], vectors[1]))
 
 

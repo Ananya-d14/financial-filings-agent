@@ -3,11 +3,11 @@
 Topology
 --------
                   ┌──────────┐
-       query  →   │  planner │
+       query  ->   │  planner │
                   └────┬─────┘
                        ▼
                   ┌──────────┐
-                  │  tools   │ ← refined plan (loop)
+                  │  tools   │ <- refined plan (loop)
                   └────┬─────┘
                        ▼
                   ┌──────────┐
@@ -200,10 +200,10 @@ async def reflector_node(state: AgentState) -> AgentState:
 def route_after_reflection(state: AgentState) -> str:
     """Decide the next step after the reflector runs.
 
-    * If the reflector said complete → 'synthesize' (if not yet synthesized)
+    * If the reflector said complete -> 'synthesize' (if not yet synthesized)
       else 'end'.
-    * If incomplete and we have a refined plan and iteration < MAX → 'planner'.
-    * If incomplete and at iteration cap → 'synthesize' (best effort) or 'end'
+    * If incomplete and we have a refined plan and iteration < MAX -> 'planner'.
+    * If incomplete and at iteration cap -> 'synthesize' (best effort) or 'end'
       if we already have an answer.
     """
     verdict = state.get("reflection")
@@ -219,7 +219,7 @@ def route_after_reflection(state: AgentState) -> str:
     if verdict and verdict.refined_plan is not None:
         return "planner"
 
-    # Incomplete but no refined plan emitted → proceed to synthesize with what we have.
+    # Incomplete but no refined plan emitted -> proceed to synthesize with what we have.
     return "end" if has_answer else "synthesize"
 
 
@@ -315,7 +315,7 @@ async def run_graph_loop(query: str, trace_id: str = "") -> GraphRunResult:
             state["answer"] = None
             continue
 
-        # 'end' or 'synthesize' (with existing answer) → done
+        # 'end' or 'synthesize' (with existing answer) -> done
         break
 
     return GraphRunResult(answer=state.get("answer"), state=state)

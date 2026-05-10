@@ -21,14 +21,14 @@ dependencies = [
     # --- Logging / observability ---
     "structlog>=24.4",
     "rich>=13.9",
-    "langfuse>=2.50,<3.0",  # 2.x stable; bump after Phase 4 if v3 features needed
+    "langfuse>=2.50,<3.0",  # 2.x stable; bump after agent graph if v3 features needed
     # --- DB / storage ---
     "sqlalchemy[asyncio]>=2.0",
     "asyncpg>=0.30",
     "alembic>=1.14",
     "qdrant-client>=1.12",
     # --- LLM clients ---
-    # Primary: Groq (free tier, Llama 3.3 70B). Fallback: local Ollama on host.
+    # Primary: Groq (free tier). Fallback: local Ollama on host.
     "groq>=0.13",
     "ollama>=0.4",
     # --- Orchestration ---

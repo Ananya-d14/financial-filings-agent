@@ -4,12 +4,12 @@ The agent graph (`run_graph_loop`) runs fully then returns. This module
 wraps it as an **async generator** that yields typed `StreamEvent` objects
 as each node completes, so the frontend receives progressive updates:
 
-  plan       → the planner's sub-task breakdown
-  tool_call  → a tool is about to run (name + inputs preview)
-  tool_result → a tool returned (output summary)
-  reflection → the reflector ran (passed or failed + reason)
-  synthesis  → the synthesizer finished (final Answer)
-  done       → terminal event, echoes the Answer for easy handling
+  plan       -> the planner's sub-task breakdown
+  tool_call  -> a tool is about to run (name + inputs preview)
+  tool_result -> a tool returned (output summary)
+  reflection -> the reflector ran (passed or failed + reason)
+  synthesis  -> the synthesizer finished (final Answer)
+  done       -> terminal event, echoes the Answer for easy handling
 
 Each event carries `trace_id` and `iteration` so the client can correlate
 events with the server logs and Langfuse traces.
@@ -84,7 +84,7 @@ async def stream_graph_loop(
     """Run the agent graph and yield StreamEvents as each node completes.
 
     Yields events in order:
-      plan → (tool_call + tool_result)* → reflection* → synthesis → done
+      plan -> (tool_call + tool_result)* -> reflection* -> synthesis -> done
 
     On unhandled exception: yields an `error` event and stops.
     """

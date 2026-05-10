@@ -28,7 +28,7 @@ export interface QueryPayload {
 }
 
 // ---------------------------------------------------------------------------
-// Streaming query — yields StreamEvent objects from the SSE endpoint
+// Streaming query, yields StreamEvent objects from the SSE endpoint
 // ---------------------------------------------------------------------------
 
 export async function* streamQuery(
@@ -79,7 +79,7 @@ export async function* streamQuery(
           yield event;
           if (event.type === "done" || event.type === "error") return;
         } catch {
-          // Malformed event — log and continue
+          // Malformed event, log and continue
           console.warn("Failed to parse SSE event:", jsonStr);
         }
       }
@@ -90,7 +90,7 @@ export async function* streamQuery(
 }
 
 // ---------------------------------------------------------------------------
-// Batch query (non-streaming) — for the health check page
+// Batch query (non-streaming), for the health check page
 // ---------------------------------------------------------------------------
 
 export async function batchQuery(payload: QueryPayload): Promise<Answer | null> {

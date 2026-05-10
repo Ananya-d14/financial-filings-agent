@@ -36,7 +36,7 @@ log = get_logger(__name__)
 COMPANYFACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik:010d}.json"
 
 # ---------------------------------------------------------------------------
-# Concept alias table, maps raw XBRL tag → canonical_concept string.
+# Concept alias table, maps raw XBRL tag -> canonical_concept string.
 #
 # This covers known heterogeneity across the 20-ticker universe. When the
 # ingestion run logs "unmapped_concept" lines, extend this table and re-run
@@ -256,7 +256,7 @@ async def parse_companyfacts_for_cik(
 def coverage_report(xbrl_rows: list[dict[str, Any]]) -> dict[str, float]:
     """Given a list of xbrl_facts rows, report coverage of key financials.
 
-    Used in the Phase 1 'done' gate: XBRL coverage >95% of filings for
+    Used in the ingestion 'done' gate: XBRL coverage >95% of filings for
     revenue / net_income / capex.
     """
     required = {"revenue", "net_income", "capex"}

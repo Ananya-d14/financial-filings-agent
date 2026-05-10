@@ -4,16 +4,12 @@ The planner is the first node in the LangGraph state machine. It takes the
 user's natural-language question and emits a `Plan` containing 1-4 typed
 `SubTask` instances, each routed to a specific tool.
 
-Routing strategy
-----------------
-* Tier-1 single-fact questions ("What was NVDA's FY2024 revenue?") are
-  routed to the cheap model (Llama 3.1 8B). The heuristic for "Tier-1":
-  one ticker, one year, one canonical concept, no comparison/multi-step.
-* Everything else (Tier-2/3/4) goes through the primary model (Llama 3.3 70B).
-
-The heuristic is conservative, when in doubt, route to primary. False
-negatives (Tier-1 routed to primary) cost a bit of latency; false positives
-(Tier-3 routed to cheap) cost accuracy, which is worse.
+Routing
+-------
+Both roles currently land on Llama 3.1 8B-instant (the 70B was the original
+plan but its daily token cap kept blowing up during eval sweeps). The
+"primary vs cheap" split is kept in the wrapper so we can flip it back
+without touching call sites once we have headroom on a bigger model.
 """
 
 from __future__ import annotations
@@ -53,7 +49,7 @@ _COMPARISON_PATTERNS = [
 
 
 def _is_likely_tier_1(query: str) -> bool:
-    """Heuristic: looks like a single-fact lookup → cheap model."""
+    """Heuristic: looks like a single-fact lookup -> cheap model."""
     q = query.lower()
     if any(re.search(p, q) for p in _COMPARISON_PATTERNS):
         return False

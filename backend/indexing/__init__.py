@@ -1,1 +1,1 @@
-"""Embedding + index building. Implemented in Phase 2."""
+"""Embedding + index building."""

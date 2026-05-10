@@ -3,7 +3,7 @@
 Each tool is exposed as an async callable that takes a typed Pydantic input
 and returns a typed Pydantic output. This module is the agent's single
 import surface for tool execution; the LangGraph state machine routes
-ToolCall instances here in Phase 4.
+ToolCall instances here in agent graph.
 
 The tools, in routing-priority order:
 
@@ -186,11 +186,11 @@ async def filing_diff_tool(req: FilingDiffInput) -> FilingDiffOutput:
 
 
 # ---------------------------------------------------------------------------
-# Registry, used by the LangGraph router in Phase 4
+# Registry, used by the LangGraph router in agent graph
 # ---------------------------------------------------------------------------
 
 
-# Maps ToolName enum → callable. The callables vary in signature (some sync,
+# Maps ToolName enum -> callable. The callables vary in signature (some sync,
 # some async, some take a session) so the router unwraps them appropriately.
 TOOL_REGISTRY: dict[ToolName, Any] = {
     ToolName.CALCULATOR: calculator_tool,

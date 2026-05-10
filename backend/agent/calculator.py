@@ -54,11 +54,11 @@ class CalculatorRequest(BaseModel):
     """Input to CalculatorTool.
 
     Required fields per operation:
-      ADD/SUBTRACT/MULTIPLY/DIVIDE       → operands: list of 2 floats
-      YOY_GROWTH/PERCENT_OF/RATIO/MARGIN → operands: list of 2 floats [current/part, previous/whole]
-      CAGR                                → operands: [start, end] + years: int
-      SUM/MEAN/MEDIAN/MIN/MAX             → operands: list of any length
-      EXPRESSION                          → expression: string
+      ADD/SUBTRACT/MULTIPLY/DIVIDE       -> operands: list of 2 floats
+      YOY_GROWTH/PERCENT_OF/RATIO/MARGIN -> operands: list of 2 floats [current/part, previous/whole]
+      CAGR                                -> operands: [start, end] + years: int
+      SUM/MEAN/MEDIAN/MIN/MAX             -> operands: list of any length
+      EXPRESSION                          -> expression: string
     """
 
     operation: CalculatorOp

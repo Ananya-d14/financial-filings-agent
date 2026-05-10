@@ -1,7 +1,8 @@
-# Evaluation Results — Financial Filings Analyst
+# Eval results
 
-> This file is updated automatically by `uv run python -m backend.eval.run_eval`.
-> All numeric entries below are populated end of Phase 5.
+This file gets rewritten by `backend/eval/run_eval.py`. Numbers below are
+filled in at the end of an eval run; placeholders mean it hasn't been re-run
+since the last code change.
 
 ---
 
@@ -18,13 +19,13 @@
 Gold answers provided by the author. Schema: `backend/eval/benchmark_questions.jsonl`.
 
 Current stub set (used for CI and smoke testing): 20 questions (5 per tier).
-Full 100-question set is added before the Phase 5 final run.
+Full 100-question set is added before the evaluation final run.
 
 ---
 
 ## Ablation table
 
-_Last updated: pending Phase 5 run_
+_Last updated: pending evaluation run_
 
 | Configuration | Tier 1 Acc | Tier 2 Acc | Tier 3 Acc | Tier 4 Acc | Faithfulness | p95 Latency | Cost/query |
 |---|---|---|---|---|---|---|---|
@@ -41,7 +42,7 @@ Total LLM cost over the full eval lifecycle: **$0**.
 
 ## LLM-judge calibration
 
-- **Judge model:** Groq Llama 3.3 70B
+- **Judge model:** Groq Llama 3.1 8B-instant (same model as the generator, see bias note)
 - **N calibration samples:** 30 (human-rated by author)
 - **Cohen's κ:** TBD
 - **Exact agreement:** TBD%
@@ -84,10 +85,10 @@ _Populated by `run_eval.py --suite full` on final run._
 # 1. Start infra
 docker compose up -d
 
-# 2. Ingest corpus (Phase 1)
+# 2. Ingest corpus (ingestion)
 uv run python -m backend.ingestion.run --tickers all
 
-# 3. Build indexes (Phase 2)
+# 3. Build indexes (indexing)
 uv run python -m backend.indexing.embed_corpus
 uv run python -m backend.indexing.build_indexes
 

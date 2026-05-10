@@ -4,11 +4,11 @@ import { useState } from "react";
 import type { MessageTrace } from "../lib/types";
 
 const TOOL_ICONS: Record<string, string> = {
-  xbrl_sql: "📊",
-  filing_retriever: "🔍",
-  hybrid_retriever: "🔍",
-  calculator: "🔢",
-  filing_diff: "📝",
+  xbrl_sql: "",
+  filing_retriever: "",
+  hybrid_retriever: "",
+  calculator: "",
+  filing_diff: "",
 };
 
 function ToolBadge({ tool }: { tool: string }) {
@@ -21,7 +21,7 @@ function ToolBadge({ tool }: { tool: string }) {
       color: "var(--muted)",
       fontFamily: "ui-monospace, monospace",
     }}>
-      {TOOL_ICONS[tool] ?? "⚙"} {tool}
+      {TOOL_ICONS[tool] ?? ""} {tool}
     </span>
   );
 }
@@ -145,11 +145,11 @@ export function ReasoningTrace({ trace }: Props) {
                   marginBottom: "0.25rem",
                   color: r.passed ? "var(--muted)" : "#ffb347",
                 }}>
-                  <span>{r.passed ? "✓" : "⚠"}</span>
+                  <span>{r.passed ? "✓" : ""}</span>
                   <span>{r.phase === "pre_synthesis" ? "Plan complete" : "Citations verified"}</span>
                   {!r.passed && r.failures.length > 0 && (
                     <span style={{ color: "#ffb347", fontSize: "0.78rem" }}>
-                      — {r.failures.slice(0, 2).join("; ")}
+                     , {r.failures.slice(0, 2).join("; ")}
                       {r.failures.length > 2 ? ` (+${r.failures.length - 2} more)` : ""}
                     </span>
                   )}

@@ -366,7 +366,7 @@ class TestSemanticSimilarity:
         assert abs(sim) < 1e-6
 
     def test_partial_similarity(self):
-        # Two unit vectors at 60° → cos = 0.5
+        # Two unit vectors at 60° -> cos = 0.5
         embedder = _StubEmbedder({"a": [1, 0, 0, 0], "b": [0.5, 0.866, 0, 0]})
         sim = semantic_similarity("a", "b", embedder=embedder)
         assert abs(sim - 0.5) < 0.01

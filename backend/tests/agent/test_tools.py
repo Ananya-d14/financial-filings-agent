@@ -9,7 +9,7 @@ We verify:
 The async DB-touching tools (filing_retriever_tool, xbrl_sql_tool,
 filing_diff_tool, citation_verifier_tool) are tested indirectly via the
 underlying modules' own tests. End-to-end integration with a live DB lands
-in Phase 4.
+in agent graph.
 """
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-"""Phase 0 smoke tests: package imports, settings load, ticker universe is correct.
+"""initial scaffold smoke tests: package imports, settings load, ticker universe is correct.
 
 These tests must always pass on a fresh checkout, they're the CI canary.
 """
@@ -40,7 +40,7 @@ def test_settings_load_with_defaults() -> None:
     # Free-tier LLM strategy: Groq primary + Ollama fallback, no Anthropic.
     assert s.llm_primary_provider == "groq"
     assert s.llm_fallback_provider == "ollama"
-    assert s.groq_model_primary == "llama-3.3-70b-versatile"
+    assert s.groq_model_primary == "llama-3.1-8b-instant"
     assert s.ollama_model == "qwen2.5:7b-instruct-q5_K_M"
 
 
@@ -75,15 +75,6 @@ def test_tickers_endpoint() -> None:
     body = resp.json()
     assert set(body["tickers"]) == EXPECTED_TICKERS
     assert set(body["fiscal_years"]) == EXPECTED_FISCAL_YEARS
-
-
-def test_query_endpoint_returns_501_in_phase_0() -> None:
-    """Phase 0 contract: /query is wired but returns 501 until Phase 4."""
-    from backend.api.main import app
-
-    client = TestClient(app)
-    resp = client.post("/query", json={"query": "test"})
-    assert resp.status_code == 501
 
 
 def test_trace_id_header_propagated() -> None:

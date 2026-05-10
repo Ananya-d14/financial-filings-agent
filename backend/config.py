@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     # Strategy: Groq (free tier) primary, local Ollama on host as fallback.
     # No paid APIs in the project.
     groq_api_key: SecretStr = Field(default=SecretStr(""))
-    groq_model_primary: str = "llama-3.3-70b-versatile"
+    groq_model_primary: str = "llama-3.1-8b-instant"
     groq_model_cheap: str = "llama-3.1-8b-instant"  # for Tier-1 single-fact lookups
 
     # Ollama runs on the host (not in docker-compose). Backend container reaches

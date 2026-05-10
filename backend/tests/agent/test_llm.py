@@ -61,7 +61,7 @@ class TestChatPrimary:
 
         class _FakeGroq:
             async def chat(self, **kwargs):
-                return "hello", {"prompt_tokens": 10, "completion_tokens": 5, "model": "llama-3.3-70b-versatile"}
+                return "hello", {"prompt_tokens": 10, "completion_tokens": 5, "model": "llama-3.1-8b-instant"}
 
         monkeypatch.setattr(llm, "_get_groq", lambda: _FakeGroq())
 

@@ -122,7 +122,7 @@ class TestRouteAfterReflection:
             "answer": None,
             "iteration": 1,
         }
-        # No refined plan → synthesize anyway with what we have
+        # No refined plan -> synthesize anyway with what we have
         assert route_after_reflection(state) == "synthesize"  # type: ignore[arg-type]
 
     def test_iteration_cap_with_answer_ends(self):
@@ -234,7 +234,7 @@ class TestSynthesizerNode:
 @pytest.mark.asyncio
 class TestRunGraphLoop:
     async def test_happy_path_single_iteration(self, monkeypatch):
-        """Plan once, run tools, reflect, synthesize, reflect → done."""
+        """Plan once, run tools, reflect, synthesize, reflect -> done."""
         from backend.agent import graph as g
 
         plan = _make_plan()
@@ -281,7 +281,7 @@ class TestRunGraphLoop:
         monkeypatch.setattr(g, "plan_query", plan_query_mock)
 
         async def fake_run_tool(tool, inputs):
-            return {"rows": []}  # empty → would fail check_plan_completeness
+            return {"rows": []}  # empty -> would fail check_plan_completeness
 
         monkeypatch.setattr(g, "_run_tool", fake_run_tool)
         monkeypatch.setattr(g, "synthesize", AsyncMock(return_value=ans))

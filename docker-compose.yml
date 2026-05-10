@@ -1,5 +1,5 @@
 # =============================================================================
-# Financial Filings Analyst — local dev infra
+# Financial Filings Analyst, local dev infra
 # Brings up: Postgres (corpus + Langfuse), Qdrant, Langfuse v2 self-hosted.
 # Backend + frontend run on host (uv / pnpm) for fast iteration; they can be
 # containerised later for deployment.
@@ -9,7 +9,7 @@ name: ffa
 
 services:
   # ---------------------------------------------------------------------------
-  # Postgres — hosts both the corpus DB (filings, xbrl_facts, chunks)
+  # Postgres, hosts both the corpus DB (filings, xbrl_facts, chunks)
   # and Langfuse's metadata DB. Two logical DBs on one Postgres instance to
   # keep dev infra lean.
   # ---------------------------------------------------------------------------
@@ -34,7 +34,7 @@ services:
       retries: 10
 
   # ---------------------------------------------------------------------------
-  # Qdrant — dense vector store for chunk embeddings.
+  # Qdrant, dense vector store for chunk embeddings.
   # ---------------------------------------------------------------------------
   qdrant:
     image: qdrant/qdrant:v1.12.4

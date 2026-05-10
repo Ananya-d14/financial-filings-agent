@@ -222,10 +222,10 @@ class TestDiffSections:
             session, ticker="NVDA", section="Item 1A", year_a=2023, year_b=2024
         )
         assert "NVDA Item 1A" in result.summary
-        assert "2023 → 2024" in result.summary
+        assert "2023 -> 2024" in result.summary
 
     async def test_fetch_section_version_no_row(self):
-        """Direct call to _fetch_section_version with empty queue → None."""
+        """Direct call to _fetch_section_version with empty queue -> None."""
         session = _FakeSession([None])
         result = await _fetch_section_version(
             session, ticker="NVDA", section="Item 1A", fiscal_year=2023, form="10-K"

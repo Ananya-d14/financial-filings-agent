@@ -1,28 +1,22 @@
-"""Provider-agnostic LLM wrapper with Groq primary + Ollama fallback.
+"""LLM wrapper. Groq primary, Ollama fallback.
 
-Two roles routed via `model_role` parameter:
-  - "primary"  → Groq Llama 3.3 70B   (planning, synthesis)
-  - "cheap"    → Groq Llama 3.1 8B    (Tier-1 single-fact lookups)
+model_role:
+  primary -> Groq Llama 3.1 8B-instant  (planning, synthesis)
+  cheap   -> Groq Llama 3.1 8B-instant  (Tier-1 lookups)
 
-On Groq 429 / quota errors, transparently retries via Ollama
-(Qwen 2.5 7B Q5_K_M) running on the host. The fallback is logged so the
-caller can decide whether to surface it.
+On Groq 429s we retry against local Ollama (Qwen 2.5 7B Q5_K_M) if
+LLM_FALLBACK_PROVIDER allows it. Fallbacks get logged.
 
-Output modes
-------------
-* `chat()`          . plain text completion
-* `chat_json()`     . request JSON, parse, validate against a Pydantic schema
+chat()       returns plain text.
+chat_json()  parses the response as JSON and validates it against a
+             Pydantic schema.
 
-Both modes accept the same messages format (a list of `{role, content}`
-dicts). The wrapper is pure logic, no streaming, no tool-use APIs. Tool
-selection and structured output are driven by JSON schemas, not provider-
-specific function-calling features, so swapping models is cheap.
+Both take a list of {role, content} dicts. No streaming, no provider
+function-calling. Structured output goes through JSON schemas so we
+can swap models without touching call sites.
 
-Mocking strategy
-----------------
-This module exposes a singleton accessor `get_llm()` that test code can
-monkeypatch with a fake implementation. Every node in the agent graph
-imports the LLM via `get_llm()`, never via direct provider clients.
+Tests monkeypatch get_llm(); every agent node goes through that
+accessor rather than instantiating a provider client directly.
 """
 
 from __future__ import annotations

@@ -13,7 +13,7 @@ restart after interruption continues from where it left off.
 BGE-large-en-v1.5 notes
 -----------------------
 * Output dimension: 1024
-* normalize_embeddings=True  →  cosine similarity via dot product (faster in Qdrant)
+* normalize_embeddings=True  ->  cosine similarity via dot product (faster in Qdrant)
 * No instruction prefix needed for v1.5 documents or queries.
 """
 

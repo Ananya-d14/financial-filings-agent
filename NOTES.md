@@ -10,15 +10,15 @@ A finance use case also forced me to take "correctness" seriously. If the system
 
 ## Decisions I changed my mind on
 
-**LangChain → LangGraph.** Started with vanilla LangChain chains, hit a wall when I needed conditional routing for the reflection loop. LangGraph's state machine model fits this much better. I still kept a plain Python loop in `graph.py:run_graph_loop()` because tests against a real LangGraph compiled object are slow and I wanted unit tests to run fast.
+**LangChain -> LangGraph.** Started with vanilla LangChain chains, hit a wall when I needed conditional routing for the reflection loop. LangGraph's state machine model fits this much better. I still kept a plain Python loop in `graph.py:run_graph_loop()` because tests against a real LangGraph compiled object are slow and I wanted unit tests to run fast.
 
 **edgartools vs SEC API direct.** First version of the downloader used `edgartools`. Worked fine for one ticker, broke on JPM because of overflow files. Rewrote against SEC's submissions JSON directly. `edgartools` is in `pyproject.toml` for any future helper use but the core path is plain httpx.
 
-**Anthropic → Groq.** Original plan was Claude Sonnet 4.5 + Haiku 4.5 with prompt caching. About halfway through I decided I wanted this to be runnable by anyone without a paid API. Groq's free tier handles Llama 3.3 70B at 250 tok/s; the quality drop on Tier 4 is real but recoverable with better prompting.
+**Anthropic -> Groq.** Original plan was Claude Sonnet 4.5 + Haiku 4.5 with prompt caching. About halfway through I decided I wanted this to be runnable by anyone without a paid API. Groq's free tier handles Llama 3.3 70B at 250 tok/s; the quality drop on Tier 4 is real but recoverable with better prompting.
 
-**Langfuse v3 → v2.** v3 wants Postgres + Clickhouse + Redis + MinIO. v2 needs one Postgres. For a portfolio project, v2 wins.
+**Langfuse v3 -> v2.** v3 wants Postgres + Clickhouse + Redis + MinIO. v2 needs one Postgres. For a portfolio project, v2 wins.
 
-**react-markdown → hand-written renderer.** Wrote a small `renderMarkdown()` in `AnswerView.tsx` because react-markdown was throwing hydration warnings during the streaming demo and I didn't want to debug it under time pressure. `react-markdown` is still in package.json so I can swap it back when I have an afternoon.
+**react-markdown -> hand-written renderer.** Wrote a small `renderMarkdown()` in `AnswerView.tsx` because react-markdown was throwing hydration warnings during the streaming demo and I didn't want to debug it under time pressure. `react-markdown` is still in package.json so I can swap it back when I have an afternoon.
 
 ## Things I got wrong the first time
 

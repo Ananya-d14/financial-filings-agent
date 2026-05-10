@@ -40,7 +40,7 @@ class TestCohensKappa:
             cohens_kappa([1, 2], [1])
 
     def test_all_same_category_returns_one(self):
-        # Everyone gave score 0; p_e = 1.0 → special case returns 1.0
+        # Everyone gave score 0; p_e = 1.0 -> special case returns 1.0
         a = [0, 0, 0]
         b = [0, 0, 0]
         assert cohens_kappa(a, b) == 1.0

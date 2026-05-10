@@ -1,7 +1,7 @@
 """FastAPI entrypoint.
 
-Phase 0: serves /health, /version, /tickers and a stub /query that 501s.
-Phase 4-6: /query becomes an SSE stream emitting plan/tool_call/...etc events.
+initial scaffold: serves /health, /version, /tickers and a stub /query that 501s.
+agent graph-6: /query becomes an SSE stream emitting plan/tool_call/...etc events.
 
 Run locally:
     uv run uvicorn backend.api.main:app --reload

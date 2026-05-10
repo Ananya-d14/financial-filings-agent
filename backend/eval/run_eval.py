@@ -23,7 +23,7 @@ Outputs
     - EVAL_RESULTS.md: updated with new ablation rows
     - backend/eval/runs/{timestamp}.jsonl: raw per-question results
 
-⚠  COST GATE: total LLM cost is $0 (Groq free tier). The constraint is
+  COST GATE: total LLM cost is $0 (Groq free tier). The constraint is
    wall-clock time. Full 100Q × 5-config sweep ≈ 2-4 hours with Groq
    rate limits. Use --suite dev for iteration.
 """
@@ -61,8 +61,8 @@ RUNS_DIR = Path(__file__).parent / "runs"
 def load_benchmark(suite: str = "dev") -> list[dict[str, Any]]:
     """Load questions from benchmark_questions.jsonl.
 
-    suite="dev"  → 30-question dev subset (first 30 rows)
-    suite="full" → all rows
+    suite="dev"  -> 30-question dev subset (first 30 rows)
+    suite="full" -> all rows
     """
     if not BENCHMARK_PATH.exists():
         raise FileNotFoundError(f"Benchmark not found: {BENCHMARK_PATH}")

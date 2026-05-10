@@ -11,7 +11,7 @@ Tasks
 This script does NOT embed vectors, that's embed_corpus.py. Run order:
     1. ingest  (run.py)
     2. embed   (embed_corpus.py)
-    3. index   (build_indexes.py)  ← this file, verifies everything is wired up
+    3. index   (build_indexes.py)  <- this file, verifies everything is wired up
 
 Usage:
     uv run python -m backend.indexing.build_indexes
@@ -111,14 +111,14 @@ async def health_report() -> dict[str, int]:
 
     print("\n=== Index health report ===")
     for k, v in report.items():
-        flag = " ⚠" if k == "unembedded" and v > 0 else ""
+        flag = " " if k == "unembedded" and v > 0 else ""
         print(f"  {k}: {v}{flag}")
 
     if report["chunks_total"] == 0:
-        print("\n  ⚠  No chunks found. Run ingestion first:")
+        print("\n    No chunks found. Run ingestion first:")
         print("     uv run python -m backend.ingestion.run --tickers NVDA --years 2024")
     elif report["unembedded"] > 0:
-        print(f"\n  ⚠  {report['unembedded']} chunks not yet embedded. Run:")
+        print(f"\n    {report['unembedded']} chunks not yet embedded. Run:")
         print("     uv run python -m backend.indexing.embed_corpus")
 
     return report

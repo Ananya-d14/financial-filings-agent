@@ -5,10 +5,10 @@ Three deterministic checks (no LLM calls):
   (b) every citation passes citation_verifier (text actually supports claim),
   (c) every plan sub-task produced at least one non-empty result.
 
-If all checks pass → emit `is_complete=True`.
-If any fail AND iteration < 3 → emit a `refined_plan` (LLM-generated) and
+If all checks pass -> emit `is_complete=True`.
+If any fail AND iteration < 3 -> emit a `refined_plan` (LLM-generated) and
     let the graph route back to the tool runner.
-If iteration ≥ 3 → emit `is_complete=False` but no refinement (graph proceeds
+If iteration ≥ 3 -> emit `is_complete=False` but no refinement (graph proceeds
     to synthesis with whatever evidence is available).
 
 The LLM is only invoked for plan refinement, not for the verification itself.

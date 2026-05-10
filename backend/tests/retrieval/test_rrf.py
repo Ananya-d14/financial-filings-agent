@@ -56,7 +56,7 @@ class TestRRF:
         bm25 = _make_bm25_rows(["a", "b", "c"])
         merged = _rrf_merge(bm25, [])
         ids = [m[0] for m in merged]
-        # Top BM25 rank → highest RRF score
+        # Top BM25 rank -> highest RRF score
         assert ids[0] == "a"
 
     def test_agreement_boosts_score(self):

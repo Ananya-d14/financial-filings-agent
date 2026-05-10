@@ -205,7 +205,7 @@ def citation_faithfulness_score(answer: Answer) -> float:
     """
     numeric_claims = [c for c in answer.claims if c.is_numeric]
     if not numeric_claims:
-        return 1.0  # no numeric claims to verify → trivially faithful
+        return 1.0  # no numeric claims to verify -> trivially faithful
     cited = sum(1 for c in numeric_claims if c.citations)
     return cited / len(numeric_claims)
 

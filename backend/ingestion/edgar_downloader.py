@@ -136,12 +136,12 @@ def _parse_filing_date(s: str) -> date:
 
 
 def _clean_accession(raw: str) -> str:
-    """Normalise accession: '0000950170-23-033960' → already normalised; strip if needed."""
+    """Normalise accession: '0000950170-23-033960' -> already normalised; strip if needed."""
     return raw.replace("-", "", 0)  # keep hyphens; SEC path uses them
 
 
 def _accession_to_path(accession: str) -> str:
-    """'0000950170-23-033960' → '000095017023033960' (no hyphens, for URL path)."""
+    """'0000950170-23-033960' -> '000095017023033960' (no hyphens, for URL path)."""
     return accession.replace("-", "")
 
 

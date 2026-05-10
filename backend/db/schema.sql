@@ -1,14 +1,12 @@
--- =============================================================================
--- Financial Filings Analyst — schema v1
+-- Schema v1.
 -- Auto-applied on first Postgres container start via docker-entrypoint-initdb.d.
 -- For migrations after v1, use Alembic in backend/db/migrations/.
--- =============================================================================
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ---------------------------------------------------------------------------
--- companies — the locked 20-ticker universe.
+-- companies: the 20-ticker universe.
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS companies (
     cik             BIGINT PRIMARY KEY,
@@ -20,7 +18,7 @@ CREATE TABLE IF NOT EXISTS companies (
 );
 
 -- ---------------------------------------------------------------------------
--- filings — one row per (cik, accession_number).
+-- filings: one row per (cik, accession_number).
 -- content_sha256 enables idempotent re-ingestion.
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS filings (
@@ -43,7 +41,7 @@ CREATE INDEX IF NOT EXISTS idx_filings_form ON filings (form);
 CREATE INDEX IF NOT EXISTS idx_filings_period_end ON filings (period_end);
 
 -- ---------------------------------------------------------------------------
--- filing_sections — section-aware structure preserved for citation offsets.
+-- filing_sections: section-aware structure preserved for citation offsets.
 -- For 10-K: Item 1, 1A, 7, 7A, 8, etc. For 8-K: 1.01, 2.02, 5.02, etc.
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS filing_sections (
@@ -61,9 +59,9 @@ CREATE TABLE IF NOT EXISTS filing_sections (
 CREATE INDEX IF NOT EXISTS idx_filing_sections_filing ON filing_sections (filing_id, section);
 
 -- ---------------------------------------------------------------------------
--- xbrl_facts — structured GAAP-tagged facts. THE source of truth for numbers.
+-- xbrl_facts: structured GAAP-tagged facts. Source of truth for numbers.
 -- canonical_concept normalises tag heterogeneity (e.g. multiple revenue tags
--- → 'us-gaap:Revenues:canonical').
+-- map to 'us-gaap:Revenues:canonical').
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS xbrl_facts (
     id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -87,7 +85,7 @@ CREATE INDEX IF NOT EXISTS idx_xbrl_concept ON xbrl_facts (concept);
 CREATE INDEX IF NOT EXISTS idx_xbrl_period_end ON xbrl_facts (period_end);
 
 -- ---------------------------------------------------------------------------
--- chunks — narrative text chunks for hybrid retrieval.
+-- chunks: narrative text chunks for hybrid retrieval.
 -- text_tsv is the FTS column (BM25 via Postgres FTS).
 -- qdrant_point_id is the 1:1 link to the dense vector in Qdrant.
 -- ---------------------------------------------------------------------------
@@ -123,7 +121,7 @@ CREATE TRIGGER chunks_tsv_update
     FOR EACH ROW EXECUTE FUNCTION chunks_tsv_trigger();
 
 -- ---------------------------------------------------------------------------
--- ingestion_runs — operational log for resumability + metrics.
+-- ingestion_runs: operational log for resumability + metrics.
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS ingestion_runs (
     id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -141,7 +139,7 @@ CREATE TABLE IF NOT EXISTS ingestion_runs (
 );
 
 -- ---------------------------------------------------------------------------
--- Seed the locked 20-ticker universe.
+-- Seed the 20-ticker universe.
 -- CIKs verified against SEC EDGAR; will be re-checked at first ingestion run.
 -- ---------------------------------------------------------------------------
 INSERT INTO companies (cik, ticker, name, sector) VALUES

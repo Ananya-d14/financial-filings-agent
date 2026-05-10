@@ -1,9 +1,9 @@
 """Ingestion orchestrator.
 
 Runs the full pipeline for specified tickers and fiscal years:
-  1. FilingDownloader  → download filing HTML from EDGAR, persist to filings table.
-  2. xbrl_parser       → fetch companyfacts JSON, upsert to xbrl_facts.
-  3. narrative_parser  → parse HTML → sections + chunks (text + char offsets).
+  1. FilingDownloader  -> download filing HTML from EDGAR, persist to filings table.
+  2. xbrl_parser       -> fetch companyfacts JSON, upsert to xbrl_facts.
+  3. narrative_parser  -> parse HTML -> sections + chunks (text + char offsets).
 
 All three steps are idempotent: re-running against an already-ingested corpus
 is a no-op (content-hash dedup for downloads; ON CONFLICT DO NOTHING everywhere).
@@ -13,7 +13,7 @@ Usage:
     uv run python -m backend.ingestion.run --tickers MSFT,AAPL --years 2024
     uv run python -m backend.ingestion.run --tickers NVDA --years 2023 --forms 10-K
 
-⚠  COST GATE: Full ingest (20 tickers × 5 years) downloads ~400 files from
+  COST GATE: Full ingest (20 tickers × 5 years) downloads ~400 files from
    EDGAR. This takes several hours (rate limited to 8 req/s). The script
    checkpoints progress; re-starting after interruption only fetches missing
    filings. Run with --dry-run to see what would be fetched without downloading.

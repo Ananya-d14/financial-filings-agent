@@ -2,7 +2,7 @@ import { ChatInterface } from "../components/ChatInterface";
 
 export const metadata = {
   title: "Financial Filings Analyst",
-  description: "Agentic RAG over SEC filings — grounded, cited, numerically accurate.",
+  description: "Agentic RAG over SEC filings, grounded, cited, numerically accurate.",
 };
 
 export default function HomePage() {

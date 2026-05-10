@@ -5,8 +5,8 @@ Keeping all prompts in one file makes it easy to:
   - Run static checks (token counts, forbidden phrases)
   - Diff prompt iterations across commits
 
-Prompts are tuned for Llama 3.3 70B on Groq. Ollama Qwen 2.5 7B uses the
-same prompts; if a prompt regresses on Ollama we fork it under the role.
+Prompts target Llama 3.1 8B-instant on Groq. Ollama Qwen 2.5 7B uses the
+same templates; if a prompt regresses on Ollama we'd fork per role.
 """
 
 from __future__ import annotations
@@ -134,7 +134,7 @@ Rules:
      section, and char_offset_start/end.
   5. If evidence is insufficient, say so explicitly, never fabricate.
   6. For multi-company comparisons, render results as a markdown table.
-  7. Keep answers concise, analyst-grade prose, no filler.
+  7. Keep answers concise, detailed prose, no filler.
 
 Emit a JSON object with this schema:
 {
@@ -188,7 +188,7 @@ Common failure modes and fixes:
   - "numeric mismatch": the synthesizer reported a value not in evidence -
     add an xbrl_sql call for the canonical concept being claimed.
   - "incomplete plan": some sub-tasks returned empty, broaden filters or
-    swap tool (e.g, xbrl_sql → filing_retriever for non-GAAP figures).
+    swap tool (e.g, xbrl_sql -> filing_retriever for non-GAAP figures).
 
 Emit the same plan JSON shape as the planner. Output JSON only.
 """

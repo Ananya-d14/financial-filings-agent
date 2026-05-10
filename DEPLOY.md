@@ -15,8 +15,8 @@ This is what I did to put the system online. The whole stack runs on free tiers.
                        ▼                 ▼                 ▼
                 ┌────────────┐    ┌────────────┐    ┌────────────┐
                 │ Supabase   │    │ Qdrant     │    │ Groq API   │
-                │ Postgres   │    │ Cloud      │    │ Llama 3.3  │
-                │ (filings,  │    │ (vectors)  │    │ free tier  │
+                │ Postgres   │    │ Cloud      │    │ Llama 3.1  │
+                │ (filings,  │    │ (vectors)  │    │ 8B-instant │
                 │  XBRL,     │    └────────────┘    └────────────┘
                 │  chunks)   │
                 └────────────┘
@@ -46,15 +46,15 @@ git remote add origin https://github.com/<your-username>/financial-filings-agent
 git push -u origin main
 ```
 
-GitHub will ask for a Personal Access Token (Settings → Developer settings → Personal access tokens → Tokens classic, with `repo` scope).
+GitHub will ask for a Personal Access Token (Settings -> Developer settings -> Personal access tokens -> Tokens classic, with `repo` scope).
 
 ## Step 2: Provision data infrastructure
 
 ### Supabase Postgres
 
-1. New Project → name `filings-db` → save the database password.
+1. New Project -> name `filings-db` -> save the database password.
 2. Wait for provisioning to finish (1-2 min).
-3. Settings → Database → Connection string (URI). Copy it. Looks like
+3. Settings -> Database -> Connection string (URI). Copy it. Looks like
    `postgresql://postgres:[PASSWORD]@db.xxx.supabase.co:5432/postgres`
 
 Then apply the schema:
@@ -67,8 +67,8 @@ This creates tables and seeds the 20 companies.
 
 ### Qdrant Cloud
 
-1. Create Free Cluster → name `filings-chunks` → AWS, any region.
-2. Once running, click the cluster → API Keys → create one. Copy URL + key.
+1. Create Free Cluster -> name `filings-chunks` -> AWS, any region.
+2. Once running, click the cluster -> API Keys -> create one. Copy URL + key.
 
 ## Step 3: Run ingestion locally (one-time)
 
@@ -94,7 +94,7 @@ Start with 3 tickers × 2 years (~24 filings) for a working demo. Full 20-ticker
 
 ## Step 4: Deploy backend to Railway
 
-1. Railway dashboard → New Project → Deploy from GitHub repo → pick `financial-filings-agent`.
+1. Railway dashboard -> New Project -> Deploy from GitHub repo -> pick `financial-filings-agent`.
 2. Railway will detect the `Dockerfile` and start building.
 3. Once first build finishes (it'll fail on missing env vars), open the project Variables tab and add:
 
@@ -106,7 +106,7 @@ QDRANT_URL              (Qdrant cluster URL)
 QDRANT_API_KEY          (Qdrant API key)
 ENVIRONMENT             production
 LOG_LEVEL               INFO
-GROQ_MODEL_PRIMARY      llama-3.3-70b-versatile
+GROQ_MODEL_PRIMARY      llama-3.1-8b-instant
 GROQ_MODEL_CHEAP        llama-3.1-8b-instant
 LLM_PRIMARY_PROVIDER    groq
 LLM_FALLBACK_PROVIDER   none
@@ -117,7 +117,7 @@ Important: `LLM_FALLBACK_PROVIDER=none` in prod since Ollama isn't available. Th
 
 Trigger a redeploy. It should come up green within ~2 min.
 
-4. Settings → Networking → Generate Domain. Copy the public URL (e.g. `https://ffa-backend-production.up.railway.app`).
+4. Settings -> Networking -> Generate Domain. Copy the public URL (e.g. `https://ffa-backend-production.up.railway.app`).
 
 5. Smoke test:
 ```bash
@@ -127,7 +127,7 @@ curl https://<your-railway-url>/tickers
 
 ## Step 5: Deploy frontend to Vercel
 
-1. Vercel dashboard → Add New Project → Import the GitHub repo.
+1. Vercel dashboard -> Add New Project -> Import the GitHub repo.
 2. Set Root Directory to `frontend`.
 3. Framework: Next.js (auto-detected).
 4. Environment Variables:
@@ -145,11 +145,11 @@ Open the Vercel URL. The header should show backend status as `ok`. Try one of t
 
 ## Optional: Custom domain
 
-Vercel → Project → Settings → Domains → add your custom domain. Same for Railway if you want a branded backend URL. CORS settings in `backend/api/main.py` are permissive (`allow_origins=["*"]`) for the demo; tighten if you ship anything sensitive.
+Vercel -> Project -> Settings -> Domains -> add your custom domain. Same for Railway if you want a branded backend URL. CORS settings in `backend/api/main.py` are permissive (`allow_origins=["*"]`) for the demo; tighten if you ship anything sensitive.
 
 ## Optional: GitHub Actions secrets
 
-For the CI eval-on-PR step to actually run the eval (not just the import smoke test), add these to GitHub repo Settings → Secrets and variables → Actions:
+For the CI eval-on-PR step to actually run the eval (not just the import smoke test), add these to GitHub repo Settings -> Secrets and variables -> Actions:
 
 ```
 GROQ_API_KEY

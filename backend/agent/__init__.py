@@ -1,1 +1,1 @@
-"""LangGraph agent: planner → router → tools → reflector → synthesizer. Phases 3-4."""
+"""LangGraph agent: planner -> router -> tools -> reflector -> synthesizer."""

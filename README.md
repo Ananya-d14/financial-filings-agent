@@ -30,7 +30,7 @@ A regular chatbot pointed at filings will happily invent numbers. For finance th
 
 | Layer | Choice | Why |
 |---|---|---|
-| LLM | Llama 3.3 70B via Groq, Llama 3.1 8B for cheap routing | Free tier, fast inference (~250 tok/s) |
+| LLM | Llama 3.1 8B-instant via Groq | Free tier, fast inference (~250 tok/s). 70B is on Groq too but the daily token cap blew up during eval sweeps |
 | Local fallback LLM | Qwen 2.5 7B Q5_K_M via Ollama | When Groq throttles. Runs on my RTX 2080 Ti |
 | Embeddings | `BAAI/bge-large-en-v1.5` | Local, no API cost, decent quality |
 | Reranker | `BAAI/bge-reranker-large` | Cross-encoder on candidates |
@@ -90,7 +90,7 @@ cd frontend && pnpm install && pnpm dev
 
 Open http://localhost:3000 and ask: "What was NVDA's FY2024 R&D expense?"
 
-For a quick sanity check that doesn't need Docker, run `python demo.py` — it shows the deterministic layers (calculator, citation verifier, live SEC API call).
+For a quick sanity check that doesn't need Docker, run `python demo.py`, it shows the deterministic layers (calculator, citation verifier, live SEC API call).
 
 ## Things I learned the hard way
 

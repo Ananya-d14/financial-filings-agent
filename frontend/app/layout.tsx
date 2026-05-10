@@ -4,7 +4,7 @@ import { BackgroundCanvas } from "../components/BackgroundCanvas";
 
 export const metadata: Metadata = {
   title: "Financial Filings Analyst",
-  description: "Agentic RAG over SEC filings — grounded, cited, numerically accurate.",
+  description: "Agentic RAG over SEC filings, grounded, cited, numerically accurate.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

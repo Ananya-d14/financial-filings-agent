@@ -10,8 +10,8 @@
                                   │
                                   ▼
                        ┌─────────────────────┐
-                       │       Planner       │   Llama 3.3 70B (8B for Tier 1)
-                       │  query → SubTask[]  │   JSON-mode output, Pydantic-validated
+                       │       Planner       │   Llama 3.1 8B-instant on Groq
+                       │  query -> SubTask[]  │   JSON-mode output, Pydantic-validated
                        └──────────┬──────────┘
                                   │
                                   ▼
@@ -33,12 +33,12 @@
                        ┌─────────────────────┐
                        │   Reflector pass 1  │   plan completeness check
                        └──────────┬──────────┘
-                                  │  ok? → continue
-                                  │  refined plan? → loop to planner
+                                  │  ok? -> continue
+                                  │  refined plan? -> loop to planner
                                   ▼
                        ┌─────────────────────┐
-                       │     Synthesizer     │   Llama 3.3 70B
-                       │   evidence → Answer │   markdown + structured claims
+                       │     Synthesizer     │   Llama 3.1 8B-instant
+                       │   evidence -> Answer │   markdown + structured claims
                        └──────────┬──────────┘
                                   │
                                   ▼
@@ -74,21 +74,21 @@ Every node emits a Langfuse span. State carries `evidence: list[Citation]`, `too
 
 `reranker.py` lazy-loads BGE-reranker-large as a singleton. Scoring is `O(n)` in candidates so the default flow is: retrieve top 20, rerank to top 10. ~200 ms per call on the 2080 Ti.
 
-`sql_retriever.py` is the structured XBRL query path. The agent's `XBRLSQLTool` should be called for any GAAP-tagged figure (revenue, net income, capex, R&D, etc.) — text extraction is reserved for narrative claims.
+`sql_retriever.py` is the structured XBRL query path. The agent's `XBRLSQLTool` should be called for any GAAP-tagged figure (revenue, net income, capex, R&D, etc.), text extraction is reserved for narrative claims.
 
 ### Agent (`backend/agent/`)
 
-`llm.py` is the provider-agnostic chat wrapper. Three roles map to models: `primary` → Groq Llama 3.3 70B, `cheap` → Groq Llama 3.1 8B, fallback path → Ollama Qwen 2.5 7B. On Groq 429 it does up to 2 exponential-backoff retries then routes to Ollama. `chat_json()` requests JSON mode, validates against a Pydantic schema, and on parse failure does one repair retry with a "your previous JSON was invalid" message. Both providers go through the same interface so swapping models is one env var.
+`llm.py` is the provider-agnostic chat wrapper. Two roles map to models: `primary` and `cheap` both go to Groq Llama 3.1 8B-instant in production (the 70B model is on Groq's free tier too but its daily token cap blew up during eval sweeps, so we ended up running everything on 8B). The fallback path is Ollama Qwen 2.5 7B; on Groq 429 it does exponential-backoff retries (5s/15s/30s, max 3) and then routes to Ollama if `LLM_FALLBACK_PROVIDER` allows it. `chat_json()` requests JSON mode, validates against a Pydantic schema, and on parse failure does one repair retry with a "your previous JSON was invalid" message. Both providers go through the same interface so swapping models is one env var.
 
 `planner.py` heuristically routes Tier-1 single-fact queries to the cheap model (8B). The heuristic checks for at most one ticker mention and absence of comparison keywords (compare, versus, growth, CAGR). Conservative by design: false negatives cost a bit of latency, false positives cost accuracy.
 
-`tools.py` is the dispatcher. Each tool has a typed Pydantic input/output and the `TOOL_REGISTRY` maps `ToolName` enum to callable. None of the tools call an LLM. The calculator uses an AST walker that allows only numeric literals and arithmetic operators — never `eval()`. The citation verifier resolves text via the chunks table first, falls back to re-parsing raw HTML if the offsets don't match a chunk row.
+`tools.py` is the dispatcher. Each tool has a typed Pydantic input/output and the `TOOL_REGISTRY` maps `ToolName` enum to callable. None of the tools call an LLM. The calculator uses an AST walker that allows only numeric literals and arithmetic operators, never `eval()`. The citation verifier resolves text via the chunks table first, falls back to re-parsing raw HTML if the offsets don't match a chunk row.
 
 `reflector.py` runs three deterministic checks (numeric claims have citations, plan sub-tasks produced output, citations resolve and back the claim). Only refinement uses the LLM. Cap at 3 iterations.
 
 `synthesizer.py` renders plan + evidence into a compact prompt, requests JSON, and fills in `trace_id` / `iterations` / `used_tools` post-hoc since the model often omits them.
 
-`graph.py` has two implementations: `build_graph()` returns a compiled LangGraph state machine; `run_graph_loop()` is the equivalent in plain Python. Tests use the plain version. `/query` uses the plain version too — LangGraph is one more dependency that can break, and the loop is small enough that having a fallback is cheap.
+`graph.py` has two implementations: `build_graph()` returns a compiled LangGraph state machine; `run_graph_loop()` is the equivalent in plain Python. Tests use the plain version. `/query` uses the plain version too, LangGraph is one more dependency that can break, and the loop is small enough that having a fallback is cheap.
 
 `citation_verifier.py` (100% test coverage) handles three matching modes: numeric exact (zero-tolerance), numeric within tolerance (default 0.5%), semantic similarity via cosine of BGE embeddings (threshold 0.55). Number extraction handles commas, suffix multipliers (M/B/K/T/billion/million), parens-as-negative, and dot-leading decimals.
 
@@ -110,7 +110,7 @@ Every node emits a Langfuse span. State carries `evidence: list[Citation]`, `too
 
 `metrics.py` computes numerical accuracy (0.5% tolerance), citation faithfulness (% numeric claims with citations), latency p50/p95, mean tokens. Failure taxonomy heuristics tag each result with one of: `correct, retrieval_miss, table_parsing_error, arithmetic_error, hallucination, planning_failure, tool_error`.
 
-`llm_judge.py` uses Groq Llama 3.3 70B with a 4-point rubric (0-3). Cohen's kappa against a 30-question human-rated calibration set. Threshold for publishing: kappa >= 0.4 (moderate agreement). Self-preference bias is an explicit risk since the generator and judge are the same model family — the calibration step is what catches it.
+`llm_judge.py` uses Groq Llama 3.1 8B-instant with a 4-point rubric (0-3). Cohen's kappa against a 30-question human-rated calibration set. Threshold for publishing: kappa >= 0.4 (moderate agreement). Self-preference bias is a real risk since the generator and judge are the same model, the calibration step is what catches it; ideally the judge is a stronger model than the generator, that's a known limitation here.
 
 `run_eval.py` is the CLI. `--suite dev` runs the first 30 questions; `--suite full` runs all. `--gap-ms` adds sleep between Groq calls to stay under the free-tier RPM. Results write to `backend/eval/runs/{timestamp}.jsonl` and the ablation table section in `EVAL_RESULTS.md` is rewritten in place.
 
@@ -144,7 +144,7 @@ Indexes: `filings(cik, fiscal_year)`, `xbrl_facts(cik, canonical_concept, period
 |---|---|---|---|
 | SEC EDGAR submissions | 10 req/s (we use 8) | User-Agent | Filing discovery and download |
 | SEC `companyfacts` | same | User-Agent | XBRL fact extraction |
-| Groq | tier RPM/TPM | API key | Llama 3.3 70B / 3.1 8B |
+| Groq | tier RPM/TPM | API key | Llama 3.1 8B-instant |
 | Ollama | none (local) | none | Qwen 2.5 7B Q5_K_M |
 
 Groq 429 retries with exponential backoff then falls back to Ollama. SEC requests outside the User-Agent guard get blocked at the application layer to prevent IP bans.
@@ -158,7 +158,7 @@ Every `/query` request gets a UUID4 trace ID. It returns in the `X-Trace-Id` res
 The system was free across all phases. The levers that matter:
 
 - Provider routing (Groq -> Ollama on 429). Removes Groq quota as a blocker.
-- Model routing within Groq (8B for Tier 1, 70B for everything else). Higher RPM headroom.
+- Model routing across Groq (8B-instant everywhere). 70B was original plan but the daily token cap was the binding constraint, not RPM.
 - Local embeddings + reranker (BGE on the 2080 Ti). $0 instead of API embedding cost.
 - Eval discipline: 30-question dev set during iteration, full 100 once a week.
 

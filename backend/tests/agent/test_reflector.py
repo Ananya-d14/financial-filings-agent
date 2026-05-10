@@ -256,5 +256,5 @@ class TestReflect:
             query="x", plan=plan, sub_task_results=results,
             answer=None, iteration=0, session=None,
         )
-        # Plan complete and no answer to verify → passes
+        # Plan complete and no answer to verify -> passes
         assert verdict.is_complete is True

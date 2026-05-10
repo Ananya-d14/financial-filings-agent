@@ -19,10 +19,10 @@ That is half a day for a person. Software can do it in seconds, if it's careful 
 
 A web app where you type a question and get back a cited, accurate answer.
 
-- "What was NVIDIA's FY2024 R&D expense?" — single fact lookup.
-- "Summarise Tesla's 2024 China-related risk factors" — qualitative.
-- "Compare gross margins of MSFT, GOOGL, AAPL 2020 to 2024" — multi-company table.
-- "Which mega-cap tech firms grew capex faster than revenue and why?" — multi-step reasoning.
+- "What was NVIDIA's FY2024 R&D expense?", single fact lookup.
+- "Summarise Tesla's 2024 China-related risk factors", qualitative.
+- "Compare gross margins of MSFT, GOOGL, AAPL 2020 to 2024", multi-company table.
+- "Which mega-cap tech firms grew capex faster than revenue and why?", multi-step reasoning.
 
 Every numeric claim in the answer has a citation that links back to the exact paragraph and character offsets in the original SEC filing. The arithmetic is done by a deterministic Python calculator, not the language model. Language models are notoriously bad at maths and worse at admitting it.
 
@@ -52,7 +52,7 @@ Things explicitly out of scope: international filings, IFRS, real-time alerting,
 
 ## What it costs
 
-Nothing. The LLM (Llama 3.3 70B) runs on Groq's free tier; the local fallback (Qwen 2.5 7B) runs on my home GPU; embeddings and reranking are local. The whole thing was built and runs without a single paid API call.
+Nothing. The LLM (Llama 3.1 8B-instant) runs on Groq's free tier; the local fallback (Qwen 2.5 7B) runs on my home GPU; embeddings and reranking are local. The whole thing was built and runs without a single paid API call.
 
 ## Who would use it
 
@@ -60,4 +60,4 @@ Equity analysts, portfolio managers, financial journalists. Anyone whose job inv
 
 ## Status
 
-Phases 0 to 6 complete: ingestion, indexing, hybrid retrieval, agent graph, evaluation harness, streaming UI. Phase 7 (deployment + final docs + demo video) in progress.
+Live on Railway + Vercel. Ingestion, hybrid retrieval, agent graph, eval harness, streaming UI, deployment all done. The benchmark JSONL is real, the ablation table in `EVAL_RESULTS.md` is real.

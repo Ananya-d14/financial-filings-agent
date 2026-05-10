@@ -57,7 +57,7 @@ export function AnswerView({ answer, trace }: Props) {
                         {up ? "▲" : "▼"} {Math.abs(Number(pct))}%
                       </span>
                       <span style={{ fontSize: "0.68rem", color: "var(--muted)", fontFamily: "var(--font-mono)" }}>
-                        {fmt(first)} → {fmt(last)}
+                        {fmt(first)} -> {fmt(last)}
                       </span>
                     </div>
                     {/* Bar sparkline with year labels */}
@@ -332,7 +332,7 @@ function renderTable(tableStr: string): string {
     const tds = parseCells(row).map((val) => {
       const isNum = /^\$?[\d,\.]+[BMT%]?$/.test(val.replace(/\s/g, "")) && val.length > 0;
       const isEmpty = val === "" || val === "-" || val === "N/A";
-      return `<td style="${isNum ? "color:var(--accent);font-family:var(--font-mono);text-align:right" : ""}${isEmpty ? "color:var(--muted)" : ""}">${escHtml(val) || "—"}</td>`;
+      return `<td style="${isNum ? "color:var(--accent);font-family:var(--font-mono);text-align:right" : ""}${isEmpty ? "color:var(--muted)" : ""}">${escHtml(val) || "-"}</td>`;
     }).join("");
     return `<tr>${tds}</tr>`;
   }).join("");
@@ -348,7 +348,7 @@ function buildCitedMarkdown(answer: Answer): string {
   let md = answer.markdown + "\n\n---\n\n**Source Citations**\n\n";
   answer.claims.filter((c) => c.is_numeric && c.citations.length > 0).forEach((claim, i) => {
     claim.citations.forEach((cit, j) => {
-      md += `[${i + 1}.${j + 1}] ${cit.ticker} ${cit.form} FY${cit.fiscal_year} — ${cit.section} (${cit.accession_number})\n`;
+      md += `[${i + 1}.${j + 1}] ${cit.ticker} ${cit.form} FY${cit.fiscal_year}, ${cit.section} (${cit.accession_number})\n`;
     });
   });
   return md;

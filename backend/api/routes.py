@@ -1,7 +1,7 @@
 """HTTP routes.
 
-Phase 4: /query (batch JSON)
-Phase 6: /query/stream (SSE. streams plan, tool calls, reflection, answer)
+agent graph: /query (batch JSON)
+frontend: /query/stream (SSE. streams plan, tool calls, reflection, answer)
 """
 
 from __future__ import annotations

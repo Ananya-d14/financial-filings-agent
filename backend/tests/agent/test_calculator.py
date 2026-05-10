@@ -154,14 +154,14 @@ class TestFinanceOps:
             )
 
     def test_cagr_2_year(self):
-        # 100 → 144 over 2 years = 20% CAGR
+        # 100 -> 144 over 2 years = 20% CAGR
         r = calculate(
             CalculatorRequest(operation=CalculatorOp.CAGR, operands=[100, 144], years=2)
         )
         assert abs(r.result - 20.0) < 0.0001
 
     def test_cagr_4_year(self):
-        # 100 → 200 over 4 years
+        # 100 -> 200 over 4 years
         r = calculate(
             CalculatorRequest(operation=CalculatorOp.CAGR, operands=[100, 200], years=4)
         )

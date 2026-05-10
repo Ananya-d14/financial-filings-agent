@@ -133,7 +133,7 @@ class TestRenderEvidenceSummary:
             {
                 "tool": "filing_diff",
                 "output": {
-                    "summary": "NVDA Item 1A: 2023 → 2024. 2 additions, 0 removals",
+                    "summary": "NVDA Item 1A: 2023 -> 2024. 2 additions, 0 removals",
                     "additions": ["AI export controls add new risk."],
                     "removals": [],
                     "common_count": 5,
@@ -232,7 +232,7 @@ class TestSynthesize:
         from backend.agent import synthesizer as syn_mod
         monkeypatch.setattr(syn_mod, "get_llm", lambda: stub)
 
-        # Plan with two XBRL_SQL sub-tasks → should appear once in used_tools
+        # Plan with two XBRL_SQL sub-tasks -> should appear once in used_tools
         plan = Plan(
             query="x",
             sub_tasks=[

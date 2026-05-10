@@ -7,12 +7,12 @@ critical part of the citation system.
 
 Section detection strategy
 --------------------------
-* 10-K  → looks for "ITEM N[A/B]" headers (regex-based), extracts
+* 10-K  -> looks for "ITEM N[A/B]" headers (regex-based), extracts
           Items 1, 1A, 1B, 2, 3, 6, 7, 7A, 8, 9, 9A.
-* 10-Q  → looks for Items 1, 1A, 2, 3, 4.
-* 8-K   → looks for Items 1.01, 2.01, 2.02, 5.02, 8.01 etc.
+* 10-Q  -> looks for Items 1, 1A, 2, 3, 4.
+* 8-K   -> looks for Items 1.01, 2.01, 2.02, 5.02, 8.01 etc.
 
-HTML → text pipeline
+HTML -> text pipeline
 --------------------
 1. BeautifulSoup strips HTML tags.
 2. Whitespace normalised (excess blank lines collapsed).
@@ -138,7 +138,7 @@ class Chunk:
 
 
 # ---------------------------------------------------------------------------
-# HTML → plain text
+# HTML -> plain text
 # ---------------------------------------------------------------------------
 
 

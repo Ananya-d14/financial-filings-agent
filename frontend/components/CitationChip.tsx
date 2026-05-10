@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Citation } from "../lib/types";
 
-// Color map per ticker — Bloomberg terminal style
+// Color map per ticker, Bloomberg terminal style
 const TICKER_COLORS: Record<string, string> = {
   MSFT: "#00a4ef", AAPL: "#a8b2c0", GOOGL: "#4285f4", AMZN: "#ff9900",
   META: "#0866ff", NVDA: "#76b900", TSLA: "#cc3333", AMD: "#ed1c24",
@@ -30,7 +30,7 @@ export function CitationChip({ citation, index }: Props) {
     <span style={{ position: "relative", display: "inline-block" }}>
       <button
         onClick={() => setOpen((o) => !o)}
-        title={`${citation.ticker} ${citation.form} FY${citation.fiscal_year} — ${section}`}
+        title={`${citation.ticker} ${citation.form} FY${citation.fiscal_year}, ${section}`}
         style={{
           display: "inline-flex",
           alignItems: "center",

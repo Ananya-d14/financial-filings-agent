@@ -14,7 +14,7 @@ Implementation
 1. Pull both sections via SQL.
 2. Split each into paragraphs (\\n\\n boundaries).
 3. Use difflib.SequenceMatcher to find common subsequences.
-4. Anything in year_b but not year_a → addition; vice versa → removal.
+4. Anything in year_b but not year_a -> addition; vice versa -> removal.
 
 A simple paragraph-level diff is intentional, sentence-level diffing is
 noisy on legal boilerplate, and chunk-level diffing misses context. The
@@ -192,7 +192,7 @@ async def diff_sections(
     additions, removals, common = _diff_paragraphs(paragraphs_a, paragraphs_b)
 
     summary = (
-        f"{ticker} {section}: {year_a} → {year_b}. "
+        f"{ticker} {section}: {year_a} -> {year_b}. "
         f"{len(additions)} additions, {len(removals)} removals, "
         f"{common} unchanged paragraphs"
     )
