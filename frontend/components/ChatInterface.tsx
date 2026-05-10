@@ -35,6 +35,7 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<StreamStatus>("idle");
+  const [glitching, setGlitching] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -47,6 +48,10 @@ export function ChatInterface() {
 
   const submit = useCallback(async (query: string) => {
     if (!query.trim() || status !== "idle") return;
+
+    // Glitch flash on send
+    setGlitching(true);
+    setTimeout(() => setGlitching(false), 380);
 
     const userMsg: ChatMessage = { id: crypto.randomUUID(), role: "user", content: query };
     const assistantId = crypto.randomUUID();
@@ -213,6 +218,7 @@ export function ChatInterface() {
               onClick={() => submit(input)}
               disabled={!input.trim() || status !== "idle"}
               title="Send (Enter)"
+              className={glitching ? "glitch-active" : ""}
               style={{
                 padding: "0.3rem 0.65rem",
                 background: input.trim() && status === "idle" ? "var(--accent)" : "var(--surface-2)",

@@ -33,6 +33,17 @@ export function AnswerView({ answer, trace }: Props) {
         dangerouslySetInnerHTML={{ __html: renderMarkdown(answer.markdown) }}
       />
 
+      {/* Sparkline — shown when answer has 2+ numeric claims (time series) */}
+      {(() => {
+        const spark = extractSparklines(answer.claims);
+        return spark && spark.values.length >= 2 ? (
+          <div style={{ marginTop: "0.75rem", padding: "0.5rem 0.75rem", background: "var(--surface-2)", borderRadius: "4px", borderLeft: "3px solid var(--accent)", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <span style={{ fontSize: "0.65rem", fontFamily: "var(--font-mono)", color: "var(--muted)", letterSpacing: "0.08em", textTransform: "uppercase" }}>Trend</span>
+            <Sparkline values={spark.values} label={spark.label} />
+          </div>
+        ) : null;
+      })()}
+
       {/* Citations section */}
       {numericClaims.length > 0 && (
         <div style={{ marginTop: "0.75rem", paddingTop: "0.6rem", borderTop: "1px solid var(--border)" }}>
@@ -154,6 +165,55 @@ export function AnswerView({ answer, trace }: Props) {
       )}
     </div>
   );
+}
+
+// ---------------------------------------------------------------------------
+// Sparkline SVG component
+// ---------------------------------------------------------------------------
+
+function Sparkline({ values, label }: { values: number[]; label: string }) {
+  if (values.length < 2) return null;
+  const W = 80, H = 28, PAD = 2;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const barW = Math.floor((W - PAD * (values.length - 1)) / values.length);
+
+  return (
+    <span style={{ display: "inline-flex", alignItems: "flex-end", gap: "0.5rem", verticalAlign: "middle", marginLeft: "0.4rem" }}>
+      <svg width={W} height={H} style={{ display: "block", overflow: "visible" }}>
+        {values.map((v, i) => {
+          const barH = Math.max(2, ((v - min) / range) * (H - 4) + 4);
+          const x = i * (barW + PAD);
+          const isLast = i === values.length - 1;
+          return (
+            <rect
+              key={i}
+              x={x}
+              y={H - barH}
+              width={barW}
+              height={barH}
+              rx={1}
+              fill={isLast ? "var(--accent)" : "rgba(0,212,170,0.35)"}
+              className="spark-bar"
+              style={{ animationDelay: `${i * 0.06}s` }}
+            />
+          );
+        })}
+      </svg>
+      <span style={{ fontSize: "0.62rem", fontFamily: "var(--font-mono)", color: "var(--accent)", whiteSpace: "nowrap" }}>
+        {label}
+      </span>
+    </span>
+  );
+}
+
+function extractSparklines(claims: any[]): { label: string; values: number[] } | null {
+  const numeric = claims.filter((c) => c.is_numeric && c.numeric_value != null && Math.abs(c.numeric_value) > 0);
+  if (numeric.length < 2) return null;
+  const values = numeric.map((c) => Math.abs(c.numeric_value as number));
+  const fmt = (v: number) => v >= 1e9 ? `$${(v/1e9).toFixed(1)}B` : v >= 1e6 ? `$${(v/1e6).toFixed(1)}M` : `$${v.toLocaleString()}`;
+  return { label: `${fmt(values[0])} → ${fmt(values[values.length - 1])}`, values };
 }
 
 // ---------------------------------------------------------------------------
