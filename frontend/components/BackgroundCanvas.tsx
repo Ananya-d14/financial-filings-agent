@@ -11,7 +11,7 @@ interface Particle {
 
 const CONNECTION_DISTANCE = 140;
 const PARTICLE_COUNT = 70;
-const LINE_COLOR = "0, 212, 170"; // --accent teal
+const LINE_COLOR = "148, 100, 220"; // light violet
 
 export function BackgroundCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
