@@ -9,9 +9,9 @@ interface Particle {
   vy: number;
 }
 
-const CONNECTION_DISTANCE = 140;
-const PARTICLE_COUNT = 70;
-const LINE_COLOR = "148, 100, 220"; // light violet
+const CONNECTION_DISTANCE = 160;
+const PARTICLE_COUNT = 80;
+const LINE_COLOR = "124, 80, 200"; // violet
 
 export function BackgroundCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -65,10 +65,10 @@ export function BackgroundCanvas() {
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < CONNECTION_DISTANCE) {
-            const alpha = (1 - dist / CONNECTION_DISTANCE) * 0.25;
+            const alpha = (1 - dist / CONNECTION_DISTANCE) * 0.55;
             ctx!.beginPath();
             ctx!.strokeStyle = `rgba(${LINE_COLOR}, ${alpha})`;
-            ctx!.lineWidth = 0.8;
+            ctx!.lineWidth = 1.2;
             ctx!.moveTo(particles[i].x, particles[i].y);
             ctx!.lineTo(particles[j].x, particles[j].y);
             ctx!.stroke();
@@ -80,7 +80,7 @@ export function BackgroundCanvas() {
       for (const p of particles) {
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, 1.2, 0, Math.PI * 2);
-        ctx!.fillStyle = `rgba(${LINE_COLOR}, 0.35)`;
+        ctx!.fillStyle = `rgba(${LINE_COLOR}, 0.65)`;
         ctx!.fill();
       }
 
