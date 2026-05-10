@@ -65,10 +65,10 @@ export function BackgroundCanvas() {
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < CONNECTION_DISTANCE) {
-            const alpha = (1 - dist / CONNECTION_DISTANCE) * 0.85;
+            const alpha = (1 - dist / CONNECTION_DISTANCE) * 0.35;
             ctx!.beginPath();
             ctx!.strokeStyle = `rgba(${LINE_COLOR}, ${alpha})`;
-            ctx!.lineWidth = 1.5;
+            ctx!.lineWidth = 0.8;
             ctx!.moveTo(particles[i].x, particles[i].y);
             ctx!.lineTo(particles[j].x, particles[j].y);
             ctx!.stroke();
@@ -79,8 +79,8 @@ export function BackgroundCanvas() {
       // Draw particle dots
       for (const p of particles) {
         ctx!.beginPath();
-        ctx!.arc(p.x, p.y, 2, 0, Math.PI * 2);
-        ctx!.fillStyle = `rgba(${LINE_COLOR}, 0.85)`;
+        ctx!.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
+        ctx!.fillStyle = `rgba(${LINE_COLOR}, 0.40)`;
         ctx!.fill();
       }
 
