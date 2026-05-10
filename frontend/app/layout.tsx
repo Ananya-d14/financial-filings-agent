@@ -9,7 +9,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {/* Aurora mesh gradient — fixed behind all content */}
+        <div className="aurora" aria-hidden="true">
+          <div className="aurora-orb aurora-orb-1" />
+          <div className="aurora-orb aurora-orb-2" />
+          <div className="aurora-orb aurora-orb-3" />
+          <div className="aurora-orb aurora-orb-4" />
+          <div className="aurora-orb aurora-orb-5" />
+        </div>
+        {children}
+      </body>
     </html>
   );
 }

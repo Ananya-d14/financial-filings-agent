@@ -19,36 +19,113 @@
   --font-sans: ui-sans-serif, "Inter", system-ui, -apple-system, sans-serif;
 }
 
-/* ── Animations ────────────────────────────────────────── */
+/* ── Aurora Mesh Gradient ──────────────────────────────── */
 
-/* A: Dot grid breathe */
-@keyframes grid-breathe {
-  0%   { opacity: 0.30; }
-  50%  { opacity: 0.55; }
-  100% { opacity: 0.30; }
+@keyframes orb-1 {
+  0%   { transform: translate(0%, 0%)    scale(1); }
+  33%  { transform: translate(15%, 20%)  scale(1.15); }
+  66%  { transform: translate(-10%, 15%) scale(0.9); }
+  100% { transform: translate(0%, 0%)    scale(1); }
+}
+@keyframes orb-2 {
+  0%   { transform: translate(0%, 0%)     scale(1); }
+  33%  { transform: translate(-20%, -10%) scale(1.1); }
+  66%  { transform: translate(10%, -20%)  scale(0.95); }
+  100% { transform: translate(0%, 0%)     scale(1); }
+}
+@keyframes orb-3 {
+  0%   { transform: translate(0%, 0%)    scale(1); }
+  33%  { transform: translate(20%, -15%) scale(1.2); }
+  66%  { transform: translate(-5%, 10%)  scale(0.85); }
+  100% { transform: translate(0%, 0%)    scale(1); }
+}
+@keyframes orb-4 {
+  0%   { transform: translate(0%, 0%)    scale(1); }
+  33%  { transform: translate(-15%, 10%) scale(1.05); }
+  66%  { transform: translate(20%, 15%)  scale(1.1); }
+  100% { transform: translate(0%, 0%)    scale(1); }
+}
+@keyframes orb-5 {
+  0%   { transform: translate(0%, 0%)    scale(1); }
+  33%  { transform: translate(10%, -20%) scale(0.9); }
+  66%  { transform: translate(-20%, 5%)  scale(1.15); }
+  100% { transform: translate(0%, 0%)    scale(1); }
 }
 
-/* C: Slow background gradient pulse */
-@keyframes bg-pulse {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* Aurora container */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
+
+/* Base orb styles */
+.aurora-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+
+/* Orb 1 — teal/green, top-left */
+.aurora-orb-1 {
+  width: 65vw;
+  height: 65vw;
+  top: -20%;
+  left: -15%;
+  background: radial-gradient(circle, rgba(0,212,170,0.22) 0%, transparent 70%);
+  animation: orb-1 22s ease-in-out infinite;
+}
+
+/* Orb 2 — deep blue, top-right */
+.aurora-orb-2 {
+  width: 55vw;
+  height: 55vw;
+  top: -15%;
+  right: -15%;
+  background: radial-gradient(circle, rgba(30,90,180,0.18) 0%, transparent 70%);
+  animation: orb-2 28s ease-in-out infinite;
+}
+
+/* Orb 3 — bright emerald, center */
+.aurora-orb-3 {
+  width: 45vw;
+  height: 45vw;
+  top: 20%;
+  left: 30%;
+  background: radial-gradient(circle, rgba(0,255,120,0.10) 0%, transparent 70%);
+  animation: orb-3 18s ease-in-out infinite;
+}
+
+/* Orb 4 — indigo/purple, bottom-left */
+.aurora-orb-4 {
+  width: 60vw;
+  height: 60vw;
+  bottom: -20%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(80,40,180,0.14) 0%, transparent 70%);
+  animation: orb-4 25s ease-in-out infinite;
+}
+
+/* Orb 5 — teal accent, bottom-right */
+.aurora-orb-5 {
+  width: 50vw;
+  height: 50vw;
+  bottom: -15%;
+  right: -10%;
+  background: radial-gradient(circle, rgba(0,180,140,0.16) 0%, transparent 70%);
+  animation: orb-5 32s ease-in-out infinite;
+}
+
+/* ── Core layout ───────────────────────────────────────── */
 
 * { box-sizing: border-box; }
 
 html {
-  /* C: Animated gradient — stays within the same dark family, barely perceptible */
-  background: linear-gradient(
-    145deg,
-    #080b0f 0%,
-    #090e14 25%,
-    #07100f 50%,
-    #090b10 75%,
-    #080b0f 100%
-  );
-  background-size: 400% 400%;
-  animation: bg-pulse 20s ease infinite;
+  background: #060810;
   min-height: 100%;
 }
 
@@ -65,24 +142,8 @@ body {
   position: relative;
 }
 
-/* A: Dot grid overlay — fixed, sits behind all content */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: radial-gradient(
-    circle,
-    rgba(0, 212, 170, 0.18) 1px,
-    transparent 1px
-  );
-  background-size: 28px 28px;
-  animation: grid-breathe 8s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* All direct content sits above the dot grid */
-body > * {
+/* Content sits above aurora */
+body > *:not(.aurora) {
   position: relative;
   z-index: 1;
 }
@@ -102,6 +163,13 @@ main {
   height: 100dvh;
   display: flex;
   flex-direction: column;
+}
+
+/* Glassmorphism surface — lets aurora bleed through subtly */
+.glass {
+  background: rgba(15, 19, 24, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 /* Tag / pill */
